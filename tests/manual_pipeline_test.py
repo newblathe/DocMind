@@ -3,6 +3,9 @@ import sys
 from pathlib import Path
 import argparse
 
+# Add the project root directory to the Python path to enable relative imports
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 # Local module imports from the services layer of the app
 from backend.app.services.document_preprocessor import preprocess_batch
 from backend.app.services.query_engine import extract_answers_from_docs
