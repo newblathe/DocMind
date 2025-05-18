@@ -6,3 +6,7 @@ __pycache__/
 
 # Environment variables
 .env
+
+
+# Uploads folder
+/backend/data/uploads/
