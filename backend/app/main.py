@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+from pathlib import Path
+
 from backend.app.api.routes.document_routes import router as document_router
 from backend.app.api.routes.pipeline_routes import router as pipeline_router
-from fastapi.staticfiles import StaticFiles
-from pathlib import Path
 
 app = FastAPI(title="Document Theme Identifier")
 
@@ -22,3 +24,8 @@ app.mount("/ui", StaticFiles(directory=Path("demo"), html=True), name="static")
 # Register API routers
 app.include_router(document_router)
 app.include_router(pipeline_router)
+
+# Add redirect from "/" to "/ui"
+@app.get("/", include_in_schema=False)
+def redirect_to_ui():
+    return RedirectResponse(url="/ui")
