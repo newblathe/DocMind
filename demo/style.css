@@ -1,0 +1,100 @@
+/* Global Reset */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar styling */
+aside {
+  width: 250px;
+  background: #2d3748;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.doc-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #4a5568;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 15px;
+  margin-bottom: 5px;
+}
+
+.doc-item button {
+  background: transparent;
+  border: none;
+  color: #f56565;
+  cursor: pointer;
+}
+
+/* Main content styling */
+main {
+  flex: 1;
+  padding: 1.5rem;
+  background: #f7fafc;
+  overflow-y: auto;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.upload-box,
+.query-box {
+  margin-bottom: 1.5rem;
+}
+
+input[type="file"],
+input[type="text"] {
+  padding: 10px;
+  font-size: 1rem;
+  width: 100%;
+}
+
+button {
+  padding: 10px 16px;
+  background: #3182ce;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+button:hover {
+  background: #2b6cb0;
+}
+
+.answers-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.answers-table th,
+.answers-table td {
+  border: 1px solid #cbd5e0;
+  padding: 10px;
+  text-align: left;
+}
+
+.themes-box {
+  margin-top: 2rem;
+  background: #edf2f7;
+  padding: 1rem;
+  border-radius: 6px;
+  white-space: pre-wrap;
+}

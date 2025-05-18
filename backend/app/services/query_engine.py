@@ -51,13 +51,13 @@ def extract_answers_from_docs(user_query: str, documents: List[Dict[str, str]]) 
         prompt = f"""
 You are an AI assistant. Given the following document content and a user's question, perform two tasks:
 
-1. Extract the most relevant answer from the document.
+1. Extract the most relevant answer from the document and if there is no relevant answer, still answer that the document is not relevant to the query.
 
 IMPORTANT: If the document includes any references to numbered parts, sections, clauses, or labeled items
 (e.g., “Section 2 of the audit”, “Part 4 of the document”, “Clause 49”), you MUST include them in exactly the same words as were used originally in the answer — exactly as they appear in the document. 
 This applies to both legal and non-legal contexts.
 Do NOT rephrase or skip them.
-2. Provide a citation for where in the document the answer came from — this could be a page number (e.g., Page 2), paragraph number (e.g., Para 4), or sentence number (e.g., Sentence 3), whichever is most appropriate based on the document layout.
+2. Provide a citation for where in the document the answer came from — this could be a page number (e.g., Page 2), paragraph number (e.g., Para 4), or sentence number (e.g., Sentence 3), whichever is most appropriate based on the document layout and if the answer is not relevant make the citation as unknown.
 
 Document ID: {doc_id}
 

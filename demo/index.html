@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Document Theme Analyzer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+
+<body>
+  <!-- Sidebar displaying uploaded documents -->
+  <aside>
+    <h2>📚 Documents</h2>
+    <div id="doc-sidebar"></div>
+  </aside>
+
+  <!-- Main area: Upload, Query, and Results -->
+  <main>
+    <h1>Document Theme Analyzer</h1>
+
+    <!-- File Upload Section -->
+    <div class="upload-box">
+      <h2>Upload Files</h2>
+      <form id="upload-form">
+        <!-- Hidden file input triggered by button -->
+        <input type="file" id="file-input" name="files" multiple style="display:none" />
+        <div id="selected-files" style="margin-top: 10px; font-size: 0.9rem; color: #555;"></div>
+        <div id="upload-status" style="color: green; font-weight: 500;"></div>
+        <button type="button" onclick="document.getElementById('file-input').click()">+ Choose Files</button>
+        <button type="submit">📤 Upload</button>
+      </form>
+    </div>
+
+    <!-- User Query Section -->
+    <div class="query-box">
+      <h2>Ask a Question</h2>
+      <form id="query-form">
+        <input type="text" id="user-question" placeholder="For example: What strategy is proposed?" required />
+        <button type="submit">▶ Run Analysis</button>
+      </form>
+    </div>
+
+    <!-- Answers Table -->
+    <div>
+      <h2>Answers Per Document</h2>
+      <table class="answers-table" id="answers-table">
+        <thead>
+          <tr><th>Document</th><th>Answer</th><th>Citation</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Theme Summary -->
+    <div>
+      <h2>Themes</h2>
+      <div id="themes" class="themes-box"></div>
+    </div>
+  </main>
+</body>
+</html>

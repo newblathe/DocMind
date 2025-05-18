@@ -34,13 +34,13 @@ def extract_themes(responses: List[Dict[str, str]]) -> str:
     prompt = f"""
 You are an AI assistant. Analyze the following document-based answers and identify common themes in this exact format only.
 
-IMPORTANT: Include **every document ID** (e.g., DOC001 to DOC075). Do not skip any document. If a document does not match a major theme, create a seperate theme and include it.
+IMPORTANT: Include **every document ID**. Do not skip any document. If a document does not match a major theme, create a seperate theme and include it.
 
 Do NOT include: greetings, step numbers, JSON, labels, introductions, extra text, notes or chat.
 Only return the common themes, using this structure exactly:
 
 Theme X - [Concise Theme Title]:
-Documents (DOC001, DOC002, ......) highlights or proposes or justifies or lacks .....
+Documents (DOC001, DOC002, ......) highlights or proposes or justifies or lacks related information.....
 
 Now  identify common themes in the following answers:
 {combined_text}
