@@ -49,34 +49,35 @@ def extract_answers_from_docs(user_query: str, documents: List[Dict[str, str]]) 
             continue
 
         prompt = f"""
-You are an AI assistant. Given the following document content and a user's question, perform two tasks:
+You are an AI assistant. Given the following document content and a user's question, perform two tasks with maximum attention to detail:
 
-1. Extract the most relevant answer from the document and if there is no relevant answer, still answer that the document is not relevant to the query.
+1. Extract the **most relevant, complete and context-rich answer** from the document.  
+   - Your answer MUST include **every important keyword, clause, section reference, or phrase** that supports or elaborates on the answer.  
+   - If the document references numbered parts, sections, clauses, or labeled items (e.g., “Section 2 of the audit”, “Clause 49”), you MUST reproduce them **exactly as written** — no paraphrasing or simplification.  
+   - Include all **supporting phrases**, **related justifications**, and **legal or technical terminology**. Do not summarize.  
+   - If no relevant answer exists, answer that the document is not relevant to the query.
 
-IMPORTANT: If the document includes any references to numbered parts, sections, clauses, or labeled items
-(e.g., “Section 2 of the audit”, “Part 4 of the document”, “Clause 49”), you MUST include them in exactly the same words as were used originally in the answer — exactly as they appear in the document. 
-This applies to both legal and non-legal contexts.
-Do NOT rephrase or skip them.
-2. Provide a citation for where in the document the answer came from — this could be a page number (e.g., Page 2), paragraph number (e.g., Para 4), or sentence number (e.g., Sentence 3), whichever is most appropriate based on the document layout and if the answer is not relevant make the citation as unknown.
+2. Provide a citation for where in the document the answer came from:  
+   - Use paragraph numbers (e.g., Para 4) or sentence numbers (e.g., Sentence 3) whichever is **most specific and accurate**.
+   - If possible, use exact references based on the document structure. Each paragraph and sentence is clearly separated.
+   - If the document is not relevant, set the citation as `"Unknown"`.
 
 Document ID: {doc_id}
 
 Document Content:
-
-Each paragraph and sentence in the document is clearly separated. Use paragraph numbers (e.g., Para 1, Para 2), sentence positions (e.g., Sentence 3), or page numbers (e.g., Page 2) as reference for your citation, whichever is most precise based on the document structure.
 
 {text[:3000]}
 
 User Question:
 {user_query}
 
-RESPONSE FORMAT (Strict):
-- Respond with ONLY valid JSON on a single line.
-- Do NOT include extra text, explanations, or formatting.
-- Escape any quotes or special characters properly.
+RESPONSE FORMAT (STRICT):
+- Respond with ONLY valid **single-line JSON**.
+- DO NOT include any extra text, explanation, formatting, or markdown.
+- Ensure proper escaping of all quotes and characters.
 
-Correct format:
-{{"answer":"Your answer here.","citation":"Para X"}}
+Return only valid JSON in this format:
+{{"answer":"Your detailed answer here.","citation":"Para X"}}
 
 Do not return markdown, backticks, or multi-line output.
 """
