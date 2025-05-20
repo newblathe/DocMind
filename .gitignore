@@ -10,3 +10,6 @@ __pycache__/
 
 # Uploads folder
 /backend/data/uploads/
+
+# Vector DB artifacts
+/backend/data/vector_store/

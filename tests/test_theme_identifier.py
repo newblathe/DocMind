@@ -9,7 +9,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from backend.app.services.theme_identifier import extract_themes
 
 
-def test_extract_themes_manual():
+def test_theme_identifier():
     """
     Unit test for the extract_themes function using sample document responses.
 

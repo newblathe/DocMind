@@ -1,21 +1,22 @@
 from typing import List, Dict
-import os
+
 from groq import Groq
-from dotenv import load_dotenv
 from pathlib import Path
 import json
 import re
 from tabulate import tabulate
 
+from backend.app.services.vector_store import search_top_k_chunks
+from backend.app.core.logger import logger
+
+from backend.app.core.config import GROQ_API_KEY
+
 # Load environment variables from .env file
-load_dotenv()
 
 # Initialize Groq client using the API key
-api_key = os.getenv("GROQ_API_KEY")
-assert api_key, "Set the GROQ_API_KEY environment variable."
-client = Groq(api_key=api_key)
+client = Groq(api_key=GROQ_API_KEY)
 
-def extract_answers_from_docs(user_query: str, documents: List[Dict[str, str]]) -> List[Dict[str, str]]:
+def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]:
     """
     Extracts relevant answers and citations from a set of documents based on a user query using Groq's LLM.
 
@@ -38,35 +39,40 @@ def extract_answers_from_docs(user_query: str, documents: List[Dict[str, str]]) 
         - 'answer': The LLM-extracted answer relevant to the user query.
         - 'citation': The approximate paragraph or sentence location of the answer within the document.
     """
+    logger.info(f"Extracting answers for query: '{user_query}' across {len(doc_ids)} document(s).")
+
     results = []
 
     # Iterate through all documents and extract answer + citation from each
-    for doc in documents:
-        doc_id = doc.get("doc_id")
-        text = doc.get("text")
+    for doc_id in doc_ids:
+        logger.info(f"Retrieving top chunks for document: {doc_id}")
+        top_chunks = search_top_k_chunks(doc_id, user_query, k=3)
 
-        if not doc_id or not text:
+        if not top_chunks:
+            logger.warning(f"No relevant chunks found for {doc_id}. Skipping.")
             continue
 
-        prompt = f"""
-You are an AI assistant. Given the following document content and a user's question, perform two tasks with maximum attention to detail:
+        combined_chunks = "\n".join([f"[Para {c['chunk_index']+1}]: {c['text']}" for c in top_chunks])
 
-1. Extract the **most relevant, complete and context-rich answer** from the document.  
-   - Your answer MUST include **every important keyword, clause, section reference, or phrase** that supports or elaborates on the answer.  
+        prompt = f"""
+You are an AI assistant. Given the following Paragraphs and a user's question, perform two tasks with maximum attention to detail:
+
+1. Extract the **most relevant, complete and context-rich answer** from the paragraphs.  
+   - Your answer MUST include **every important keyword, clause, dates, section reference, or phrase** that supports or elaborates on the answer.  
    - If the document references numbered parts, sections, clauses, or labeled items (e.g., “Section 2 of the audit”, “Clause 49”), you MUST reproduce them **exactly as written** — no paraphrasing or simplification.  
    - Include all **supporting phrases**, **related justifications**, and **legal or technical terminology**. Do not summarize.  
    - If no relevant answer exists, answer that the document is not relevant to the query.
 
 2. Provide a citation for where in the document the answer came from:  
    - Use paragraph numbers (e.g., Para 4) or sentence numbers (e.g., Sentence 3) whichever is **most specific and accurate**.
-   - If possible, use exact references based on the document structure. Each paragraph and sentence is clearly separated.
+   - If possible, use exact references based on the document structure. Each paragraph is clearly separated.
    - If the document is not relevant, set the citation as `"Unknown"`.
 
 Document ID: {doc_id}
 
-Document Content:
+Paragraphs:
 
-{text[:3000]}
+{combined_chunks}
 
 User Question:
 {user_query}
@@ -94,13 +100,13 @@ Do not return markdown, backticks, or multi-line output.
             content = response.choices[0].message.content.strip()
 
             if not content:
-                print(f"Empty response for {doc_id}")
+                logger.warning(f"Empty response received from LLM for document: {doc_id}")
                 continue
             
             # Extract clean JSON using RegEX
             json_match = re.search(r'{\s*"answer"\s*:\s*".*?",\s*"citation"\s*:\s*".*?"\s*}', content, re.DOTALL)
             if not json_match:
-                print(f"No valid JSON found in response for {doc_id}")
+                logger.warning(f"Invalid JSON format received for document: {doc_id}")
                 continue
 
             parsed = json.loads(json_match.group())
@@ -114,9 +120,13 @@ Do not return markdown, backticks, or multi-line output.
                     "answer": answer,
                     "citation": citation or "Unknown"
                 })
+                logger.info(f"Answer extracted for {doc_id}: {citation}")
+            else:
+                logger.info(f"No relevant answer found in {doc_id}")
 
         except Exception as e:
             print(f"Failed to process {doc_id}: {e}")
             continue
-
+    
+    logger.info(f"Answer extraction complete. Total successful answers: {len(results)}")
     return results

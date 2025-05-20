@@ -10,7 +10,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 # Import the preprocess_batch function from the services module
 from backend.app.services.document_preprocessor import preprocess_batch
 
-def test_preprocess_pdf_and_image():
+def test_document_preprocessor():
 
     """
     Unit test for the `preprocess_batch` function.
@@ -36,8 +36,5 @@ def test_preprocess_pdf_and_image():
     # Process the list of documents using the batch processor
     results = preprocess_batch([docx_path, pdf_path, img_path, txt_path])
 
-    # Print the structured text output for each document for manual verification
-    for doc in results:
-        print(f"\n{doc['doc_id']}")
-        print("-" * 40)
-        print(doc['text'])
+    # Print the doc_id for the documents
+    print(results)

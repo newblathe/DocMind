@@ -1,15 +1,13 @@
 from typing import List, Dict
 from groq import Groq
-import os
-from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv()
+from backend.app.core.logger import logger
+from backend.app.core.config import GROQ_API_KEY
 
 # Initialize Groq client
-api_key = os.getenv("GROQ_API_KEY")
-assert api_key, "Set the GROQ_API_KEY environment variable."
-client = Groq(api_key=api_key)
+
+client = Groq(api_key=GROQ_API_KEY)
 
 # Group document-level answers into recurring high-level themes and format them
 def extract_themes(responses: List[Dict[str, str]]) -> str:
@@ -23,6 +21,8 @@ def extract_themes(responses: List[Dict[str, str]]) -> str:
     Returns:
     - summary (str): A formatted textual summary of all themes.
     """
+
+    logger.info(f"Generating themes from {len(responses)} document-level answers...")
 
     # Combine document answers into a single block
     combined_text = "\n".join([f"{r['doc_id']}: {r['answer'][:300]}" for r in responses])
@@ -58,7 +58,10 @@ Now  identify common themes in the following answers:
 
         # Extract and clean the raw LLM response
         common_themes = completion.choices[0].message.content.strip()
+
+        logger.info("Theme extraction completed successfully.")
+
     except Exception as e:
-        print("Failed to extract themes:", e)
+        logger.error("Theme extraction failed.", exc_info=True)
         common_themes = "No themes could be extracted due to an error."
     return common_themes

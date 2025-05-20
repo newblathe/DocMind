@@ -6,6 +6,8 @@ from docx import Document
 import shutil
 from typing import List, Dict
 
+from backend.app.services.vector_store import add_chunks_to_index, remove_doc_from_index
+from backend.app.core.logger import logger
 
 # Auto-detect the Tesseract binary from the system PATH
 # If found, set it for pytesseract usage
@@ -72,7 +74,7 @@ def extract_text_from_txt(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-def preprocess_document(file_path: str, doc_id: str) -> Dict[str, str]:
+def preprocess_document(file_path: str, doc_id: str):
     """
     Preprocesses a single document (PDF, image, docx or text) and returns a dictionary
     with its ID and structured text (paragraph-separated).
@@ -81,9 +83,10 @@ def preprocess_document(file_path: str, doc_id: str) -> Dict[str, str]:
     - file_path: Full path to the input document
     - doc_id: Assigned document ID (e.g., 'DOC001')
 
-    Returns:
-    - dict: { "doc_id": ..., "text": ... }
     """
+
+    logger.info(f"Starting preprocessing: {file_path}")
+
     ext = os.path.splitext(file_path)[-1].lower()
 
     if ext in [".pdf"]:
@@ -95,17 +98,18 @@ def preprocess_document(file_path: str, doc_id: str) -> Dict[str, str]:
     elif ext == ".txt":
         raw_text = extract_text_from_txt(file_path)
     else:
+        logger.error(f"Unsupported file type during preprocessing: {ext}")
         raise ValueError(f"Unsupported file type: {ext}")
 
-    paragraphs = [p.strip() for p in raw_text.split("\n") if p.strip()]
-    structured_text = "\n\n".join(paragraphs)
+    chunks = [p.strip() for p in raw_text.split("\n") if p.strip()]
+    logger.info(f"Extracted {len(chunks)} chunk(s) from {doc_id}")
 
-    return {
-        "doc_id": doc_id,
-        "text": structured_text
-    }
+    remove_doc_from_index(doc_id)
+    add_chunks_to_index(doc_id, chunks)
 
-def preprocess_batch(file_paths: List[str]) -> List[Dict[str, str]]:
+
+
+def preprocess_batch(file_paths: List[str]):
     """
     Preprocesses a list of document file paths and returns them
     as a list of dictionaries containing doc_id and extracted text.
@@ -114,14 +118,19 @@ def preprocess_batch(file_paths: List[str]) -> List[Dict[str, str]]:
     - file_paths: List of full file paths (PDFs or images)
 
     Returns:
-    - List[Dict]: Each dict contains 'doc_id' and 'text'
+    - List[str]: List of Document IDs
     """
+    logger.info(f"Starting batch preprocessing of {len(file_paths)} file(s).")
     processed = []
+
     for i, path in enumerate(file_paths, start=1):
-        doc_id = f"DOC{str(i).zfill(3)}"
+        filename = os.path.basename(path) 
+        doc_id = os.path.splitext(filename)[0]
         try:
-            result = preprocess_document(path, doc_id)
-            processed.append(result)
+            preprocess_document(path, doc_id)
+            processed.append(doc_id)
         except Exception as e:
-            print(f"Failed to process {path}: {e}")
+            logger.error(f"Failed to process {path}: {e}", exc_info=True)
+        
+    logger.info(f"Batch preprocessing complete. Successfully processed: {processed}")
     return processed
