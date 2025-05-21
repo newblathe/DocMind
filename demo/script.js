@@ -7,7 +7,7 @@ async function refreshSidebar() {
   for (const name of data.documents) {
     const div = document.createElement("div");
     div.className = "doc-item";
-    div.innerHTML = `${name} <button onclick="deleteDocument('${name}')">❌</button>`;
+    div.innerHTML = `${name} <button onclick="deleteDocument('${name}')">&#10060;</button>`;
     sidebar.appendChild(div);
   }
 }
@@ -66,6 +66,27 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
 document.getElementById("query-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const q = document.getElementById("user-question").value;
+  const questionStatus = document.getElementById("question-status");
+
+  // Check if a question is entered
+  if (!q.trim()) {
+    questionStatus.style.color = "red";
+    questionStatus.textContent = "⚠️ Please enter a question.";
+    setTimeout(() => {
+      questionStatus.textContent = "";
+    }, 3000);
+  }
+
+  const tbody = document.querySelector("#answers-table tbody");
+  const themesBox = document.getElementById("themes");
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="3" style="text-align:center; color:#555; padding:1rem;">
+        ⏳ Loading answers...
+      </td>
+    </tr>`;
+  themesBox.textContent = "⏳ Analyzing themes...";
 
   const res = await fetch("/run-pipeline", {
     method: "POST",
@@ -76,15 +97,28 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
   const data = await res.json();
 
   // Populate answers table
-  const tbody = document.querySelector("#answers-table tbody");
   tbody.innerHTML = "";
+
+  // No question entered or No files for Preprocessing
+  if (data.answers.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align:center; color: #777;">
+        ${data.themes}
+        </td>
+      </tr>`;
+
+    themesBox.textContent = data.themes;
+    return;
+  }
+
   for (const ans of data.answers) {
     const row = `<tr><td>${ans.doc_id}</td><td>${ans.answer}</td><td>${ans.citation}</td></tr>`;
     tbody.innerHTML += row;
   }
 
   // Show extracted themes
-  document.getElementById("themes").textContent = data.themes;
+  themesBox.textContent = data.themes;
 });
 
 // Initial sidebar load

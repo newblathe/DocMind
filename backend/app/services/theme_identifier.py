@@ -40,7 +40,7 @@ Do NOT include: greetings, step numbers, JSON, labels, introductions, extra text
 Only return the common themes, using this structure exactly:
 
 Theme X - [Concise Theme Title]:
-Documents (DOC001, DOC002, ......) highlight or propose or justify or lack ......
+Documents (DOC001.pdf, DOC002.txt, ......) highlight or propose or justify or lack ......
 
 Documents that have been already included in a theme can again appear in a theme. Also there might be themes that are not common among multiple documents list them as well.
 

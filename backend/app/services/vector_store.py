@@ -30,7 +30,7 @@ doc_chunk_faiss_ids: Dict[str, List[int]] = defaultdict(list)
 
 # Rebuild reverse mapping from doc_id to FAISS chunk IDs
 for meta in metadata:
-    doc_chunk_faiss_ids[meta["doc_id"].split("_chunk_")[0]].append(meta["faiss_id"])
+    doc_chunk_faiss_ids[meta["doc_id"].rsplit("_chunk_", 1)[0]].append(meta["faiss_id"])
 
 def _generate_faiss_id(doc_id: str, chunk_index: int) -> int:
     """Generate a consistent integer ID for a given doc and chunk."""

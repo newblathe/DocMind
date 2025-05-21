@@ -34,10 +34,15 @@ def run_pipeline(payload: PipelineInput):
         if f.lower().endswith(('.pdf', '.png', '.jpg', '.jpeg', '.txt', '.docx'))
     ]
 
-    # Handle empty document case
+    # Handle no files
     if not file_paths:
         logger.warning("Pipeline triggered, but no documents were found.")
-        return PipelineResponse(answers=[], themes="No documents found for processing.")
+        return PipelineResponse(answers=[], themes="No documents found for analysis.")
+    
+    # Handle no question
+    if not payload.question.strip() or not payload.question:
+        logger.warning("Pipeline triggered without a question.")
+        return PipelineResponse(answers=[], themes="No question provided for analysis.")
 
     logger.info(f"Pipeline started for question: {payload.question}")
     logger.info(f"Total files in upload directory: {len(file_paths)}")
@@ -49,8 +54,7 @@ def run_pipeline(payload: PipelineInput):
         # Filter and preprocess only new documents
         docs_to_preprocess = []
         for path in file_paths:
-            filename = os.path.basename(path)
-            doc_id = os.path.splitext(filename)[0]
+            doc_id = os.path.basename(path)
             doc_ids.append(doc_id)
 
             if not is_document_indexed(doc_id):

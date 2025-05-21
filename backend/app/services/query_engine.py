@@ -82,7 +82,7 @@ RESPONSE FORMAT (STRICT):
 - DO NOT include any extra text, explanation, formatting, or markdown.
 - Ensure proper escaping of all quotes and characters.
 
-Return only valid JSON in this format:
+Must Return only valid JSON in this format (STRICT):
 {{"answer":"Your detailed answer here.","citation":"Para X"}}
 
 Do not return markdown, backticks, or multi-line output.

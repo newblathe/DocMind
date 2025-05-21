@@ -21,6 +21,9 @@ if not is_document_indexed(doc_id):
     add_chunks_to_index(doc_id, chunks)
     print("preprocessing")
 
+
+
+
 # Step 2: Query the index
 query = "What is the strategy for 2024?"
 top_results = search_top_k_chunks(doc_id, query, k=3)
@@ -31,3 +34,5 @@ for i, result in enumerate(top_results):
     print(f"\nRank {i+1}:")
     print(f"Chunk Index: {result['chunk_index']}")
     print(f"Text: {result['text']}")
+
+remove_doc_from_index(doc_id)

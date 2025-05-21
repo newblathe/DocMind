@@ -123,9 +123,8 @@ def preprocess_batch(file_paths: List[str]):
     logger.info(f"Starting batch preprocessing of {len(file_paths)} file(s).")
     processed = []
 
-    for i, path in enumerate(file_paths, start=1):
-        filename = os.path.basename(path) 
-        doc_id = os.path.splitext(filename)[0]
+    for path in (file_paths):
+        doc_id = os.path.basename(path)
         try:
             preprocess_document(path, doc_id)
             processed.append(doc_id)

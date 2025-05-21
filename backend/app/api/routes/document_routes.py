@@ -112,7 +112,7 @@ async def delete_document(filename: str):
     file_path.unlink()
 
     # Delete the FAISS Index
-    doc_id = os.path.splitext(filename)[0]
+    doc_id = filename
     remove_doc_from_index(doc_id)
     
     logger.info(f"Deleted file and removed from index: {filename}")

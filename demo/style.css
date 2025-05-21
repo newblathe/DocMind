@@ -11,10 +11,20 @@ body {
   overflow: hidden;
 }
 
+h1 {
+  margin-top: 0;
+  text-decoration: underline;
+  text-underline-offset: 9px;
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
 /* Sidebar styling */
 aside {
   width: 250px;
-  background: #2d3748;
+  background: black;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -22,20 +32,23 @@ aside {
 }
 
 .doc-item {
+  text-align: center;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #4a5568;
-  padding: 6px 10px;
+  background: transparent;
+  color: white;
   border-radius: 4px;
   font-size: 15px;
-  margin-bottom: 5px;
+  padding: 5px;
+  margin-bottom: 8px;
 }
 
 .doc-item button {
+  text-align: center;
   background: transparent;
   border: none;
-  color: #f56565;
+  color: white;
   cursor: pointer;
 }
 
@@ -45,10 +58,6 @@ main {
   padding: 1.5rem;
   background: #f7fafc;
   overflow-y: auto;
-}
-
-h1 {
-  margin-top: 0;
 }
 
 .upload-box,
@@ -63,19 +72,21 @@ input[type="text"] {
   width: 100%;
 }
 
-button {
-  padding: 10px 16px;
-  background: #3182ce;
-  color: #fff;
+.upload-box button,
+.query-box button {
+  text-align: center;
+  padding: 10px;
+  background: rgb(0, 0, 0);
+  color: white;
   border: none;
   border-radius: 4px;
   font-size: 1rem;
   cursor: pointer;
-  margin-top: 10px;
 }
 
-button:hover {
-  background: #2b6cb0;
+.upload-box button:hover,
+.query-box button:hover {
+  background: navy;
 }
 
 .answers-table {
@@ -86,15 +97,32 @@ button:hover {
 
 .answers-table th,
 .answers-table td {
-  border: 1px solid #cbd5e0;
+  border: 1px solid white;
   padding: 10px;
   text-align: left;
 }
 
 .themes-box {
   margin-top: 2rem;
-  background: #edf2f7;
+  background: white;
   padding: 1rem;
   border-radius: 6px;
   white-space: pre-wrap;
+}
+
+#selected-files {
+  margin: 10px 10px 10px 0px;
+  font-size: 0.9rem;
+  color: navy;
+}
+
+#upload-status {
+  margin: 10px 10px 10px 0px;
+  margin-left: 0;
+  color: green;
+  font-weight: 500;
+}
+
+#question-status{
+  margin: 10px 10px 10px 0px;
 }
