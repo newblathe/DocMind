@@ -29,6 +29,7 @@ aside {
   display: flex;
   flex-direction: column;
   padding: 1rem;
+  box-sizing: border-box;
 }
 
 .doc-item {
@@ -42,6 +43,7 @@ aside {
   font-size: 15px;
   padding: 5px;
   margin-bottom: 8px;
+  box-sizing: border-box;
 }
 
 .doc-item button {

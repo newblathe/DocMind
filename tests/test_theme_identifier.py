@@ -1,4 +1,3 @@
-import pytest
 import sys
 from pathlib import Path
 
@@ -36,3 +35,5 @@ def test_theme_identifier():
     # Print themes for manual verification
     print("\n=== COMMON THEMES ===")
     print(common_themes)
+
+test_theme_identifier()

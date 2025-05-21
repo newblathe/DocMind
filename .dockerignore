@@ -1,0 +1,15 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+
+# Uploads folder
+/backend/data/uploads/
+
+# Vector DB artifacts
+/backend/data/vector_store/

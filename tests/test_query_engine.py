@@ -1,4 +1,3 @@
-import pytest
 import sys
 from pathlib import Path
 
@@ -36,3 +35,6 @@ def test_query_engine():
     # Print results for manual verification
     for r in results:
         print(f"\n{r['doc_id']}\nAnswer: {r['answer']}\nCitation: {r['citation']}")
+
+
+test_query_engine()

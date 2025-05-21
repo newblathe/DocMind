@@ -29,11 +29,15 @@ def extract_text_from_pdf(file_path: str) -> str:
     - Cleaned string containing all extracted text from all pages.
     """
 
-    text = ""
+    blocks = []
     with fitz.open(file_path) as doc:
         for page in doc:
-            text += page.get_text("text") + "\n"
-    return text.strip()
+            for b in page.get_text("blocks"):
+                text = b[4].strip().replace("\n", "")
+                if text:
+                    blocks.append(text)
+    return "\n".join(blocks)
+
 
 def extract_text_from_image(file_path: str) -> str:
     """
@@ -46,7 +50,8 @@ def extract_text_from_image(file_path: str) -> str:
     - Raw text extracted from the image using OCR
     """
     image = Image.open(file_path)
-    return pytesseract.image_to_string(image)
+    extracted_text = pytesseract.image_to_string(image, lang="eng", config= "--psm 6") 
+    return extracted_text.replace("\n", " ").replace("  ", "\n")
 
 def extract_text_from_docx(file_path: str) -> str:
     """
@@ -76,8 +81,7 @@ def extract_text_from_txt(file_path: str) -> str:
 
 def preprocess_document(file_path: str, doc_id: str):
     """
-    Preprocesses a single document (PDF, image, docx or text) and returns a dictionary
-    with its ID and structured text (paragraph-separated).
+    Preprocesses a single document (PDF, image, docx or text)
 
     Parameters:
     - file_path: Full path to the input document
@@ -112,7 +116,7 @@ def preprocess_document(file_path: str, doc_id: str):
 def preprocess_batch(file_paths: List[str]):
     """
     Preprocesses a list of document file paths and returns them
-    as a list of dictionaries containing doc_id and extracted text.
+    as a list containing doc_ids
 
     Parameters:
     - file_paths: List of full file paths (PDFs or images)

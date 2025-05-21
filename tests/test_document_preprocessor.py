@@ -1,5 +1,4 @@
 import os
-import pytest
 
 import sys
 from pathlib import Path
@@ -38,3 +37,5 @@ def test_document_preprocessor():
 
     # Print the doc_id for the documents
     print(results)
+
+test_document_preprocessor()

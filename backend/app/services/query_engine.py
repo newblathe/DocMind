@@ -29,9 +29,7 @@ def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[
 
     Parameters:
     - user_query (str): The user's question or prompt to guide the extraction.
-    - documents (List[Dict[str, str]]): A list of dictionaries where each contains:
-        - 'doc_id': Unique identifier for the document.
-        - 'text': Full document content (preprocessed).
+    - doc_ids (List[str]): A list which contains the doc_id for each document.
 
     Returns:
     - List[Dict[str, str]]: A list of dictionaries, each containing:
@@ -46,7 +44,7 @@ def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[
     # Iterate through all documents and extract answer + citation from each
     for doc_id in doc_ids:
         logger.info(f"Retrieving top chunks for document: {doc_id}")
-        top_chunks = search_top_k_chunks(doc_id, user_query, k=3)
+        top_chunks = search_top_k_chunks(doc_id, user_query, k=5)
 
         if not top_chunks:
             logger.warning(f"No relevant chunks found for {doc_id}. Skipping.")
@@ -55,13 +53,13 @@ def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[
         combined_chunks = "\n".join([f"[Para {c['chunk_index']+1}]: {c['text']}" for c in top_chunks])
 
         prompt = f"""
-You are an AI assistant. Given the following Paragraphs and a user's question, perform two tasks with maximum attention to detail:
+You are an AI assistant. Given the following paragraphs from a document and a user's question, perform two tasks with maximum attention to detail:
 
 1. Extract the **most relevant, complete and context-rich answer** from the paragraphs.  
    - Your answer MUST include **every important keyword, clause, dates, section reference, or phrase** that supports or elaborates on the answer.  
-   - If the document references numbered parts, sections, clauses, or labeled items (e.g., “Section 2 of the audit”, “Clause 49”), you MUST reproduce them **exactly as written** — no paraphrasing or simplification.  
+   - If the paragraphs reference numbered parts, sections, clauses, dates or labeled items (e.g., “Section 2 of the audit”, “Clause 49”), you MUST reproduce them **exactly as written** — no paraphrasing or simplification.  
    - Include all **supporting phrases**, **related justifications**, and **legal or technical terminology**. Do not summarize.  
-   - If no relevant answer exists, answer that the document is not relevant to the query.
+   - If no relevant answer exists, set the answer as `"no relevant information found"`.
 
 2. Provide a citation for where in the document the answer came from:  
    - Use paragraph numbers (e.g., Para 4) or sentence numbers (e.g., Sentence 3) whichever is **most specific and accurate**.
@@ -82,7 +80,7 @@ RESPONSE FORMAT (STRICT):
 - DO NOT include any extra text, explanation, formatting, or markdown.
 - Ensure proper escaping of all quotes and characters.
 
-Must Return only valid JSON in this format (STRICT):
+Must Return only valid JSON strictly in this format:
 {{"answer":"Your detailed answer here.","citation":"Para X"}}
 
 Do not return markdown, backticks, or multi-line output.
@@ -114,14 +112,20 @@ Do not return markdown, backticks, or multi-line output.
             citation = parsed.get("citation", "").strip()
 
             # Add result only if a meaningful answer is found
-            if answer and answer.lower() != "no relevant information found":
+            if answer.lower() != "no relevant information found":
                 results.append({
                     "doc_id": doc_id,
                     "answer": answer,
-                    "citation": citation or "Unknown"
+                    "citation": citation
                 })
                 logger.info(f"Answer extracted for {doc_id}: {citation}")
             else:
+                results.append({
+                    "doc_id": doc_id,
+                    "answer": f"No relevant answer found",
+                    "citation" : "Unkonown"
+
+                })
                 logger.info(f"No relevant answer found in {doc_id}")
 
         except Exception as e:
