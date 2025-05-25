@@ -10,22 +10,19 @@ RUN apt-get update && apt-get install -y \
     libxrender-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory to /backend
+# Set working directory
 WORKDIR /myapp
 
-# Copy the backend code into the container
+# Copy backend and frontend
 COPY backend/ backend/
-
-# Copy the frontend demo folder
 COPY demo/ demo/
 
-# Copy and install Python dependencies
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Expose port
+EXPOSE 8000
 
-# Expose FastAPI's port
-EXPOSE 10000
-
-# Run the FastAPI app
-CMD CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "10000"]
+# Start FastAPI
+CMD uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
