@@ -75,13 +75,17 @@ Paragraphs:
 User Question:
 {user_query}
 
-RESPONSE FORMAT (STRICT):
-- Respond with ONLY valid **single-line JSON**.
-- DO NOT include any extra text, explanation, formatting, or markdown.
-- Ensure proper escaping of all quotes and characters.
+STRICT INSTRUCTIONS:
+- Output ONLY a single-line JSON object, nothing else.
+- DO NOT include backticks, markdown, explanation, or line breaks.
+- The output MUST begin with {{ and end with }}.
+- Escape all inner quotes properly.
 
 Must Return only valid JSON strictly in this format:
 {{"answer":"Your detailed answer here.","citation":"Para X"}}
+
+Example:
+{{"answer":"The agreement was signed on March 3, 2023 under Clause 5.","citation":"Para 4"}}
 
 Do not return markdown, backticks, or multi-line output.
 """

@@ -1,5 +1,5 @@
 # Use a Python base image
-FROM python:3.10
+FROM python:3.10-slim
 
 # Install system dependencies for Tesseract and image processing
 RUN apt-get update && apt-get install -y \
@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /myapp
 
-# Copy backend and frontend
+# Copy backend and demo
 COPY backend/ backend/
 COPY demo/ demo/
 
@@ -25,4 +25,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 8000
 
 # Start FastAPI
-CMD uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
