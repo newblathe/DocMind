@@ -12,3 +12,4 @@ sentence_transformers==4.1.0
 tabulate==0.9.0
 uvicorn==0.34.2
 python_multipart==0.0.20
+slowapi==0.1.9
