@@ -190,7 +190,7 @@ You can run DocMind either via **Docker** (recommended) or directly using **Uvic
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/newblathe/docmind.git
+git clone https://github.com/newblathe/DocMind.git
 cd docmind
 ```
 
