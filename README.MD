@@ -235,7 +235,7 @@ uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### 5. Open the app
-Visit http://localhost:8000/ui
+Visit http://localhost:8000/
 
 
 ## Folder Structure
