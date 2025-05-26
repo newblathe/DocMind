@@ -2,7 +2,9 @@ import os
 import uuid
 from typing import List
 
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, HTTPException, Request, Body
+
+from backend.app.core.limiter import limiter
 
 
 from backend.app.core.config import UPLOAD_DIR
@@ -14,8 +16,9 @@ router = APIRouter()
 
 
 
-@router.post("/upload", summary="Upload onr or more documents", response_model=DocumentUploadResponse)
-async def upload_documents(files: List[UploadFile] = File(...)):
+@router.post("/upload", summary="Upload one or more documents", response_model=DocumentUploadResponse)
+@limiter.shared_limit("100/minute", scope="global")  # Rate Limiting
+async def upload_documents(request: Request, files: List[UploadFile] = File(...)):
     """
     Upload one or more documents to the server.
 
@@ -28,7 +31,7 @@ async def upload_documents(files: List[UploadFile] = File(...)):
         dict: A dictionary containing list of successfully uploaded filenames.
     
     Raises:
-        HTTPException: If an unsupported file extension is provided.
+        HTTPException: If an unsupported file extension is provided or no files are provided.
     """
 
     # Validate that at least one file was provided
@@ -72,7 +75,8 @@ async def upload_documents(files: List[UploadFile] = File(...)):
     return DocumentUploadResponse(uploaded_files=saved_files)
 
 @router.get("/list", summary = "List all uploaded documents", response_model=DocumentListResponse)
-async def list_documents():
+@limiter.shared_limit("100/minute", scope="global") # Rate Limiting
+async def list_documents(request: Request):
     """
     List all the dcouments currently uploaded to the server.
 
@@ -87,8 +91,9 @@ async def list_documents():
     logger.info(f"Listed {len(files)} file(s) from upload directory.")
     return DocumentListResponse(documents=files)
 
-@router.delete("/delete/{filename}", summary = "Delete a specific document", response_model=DeleteResponse)
-async def delete_document(filename: str):
+@router.post("/delete", summary = "Delete a specific document", response_model=DeleteResponse)
+@limiter.shared_limit("100/minute", scope="global") # Rate Limiting
+async def delete_document(request: Request, body: dict = Body(...)):
     """
     Delete a document from the upload directory by filename.
 
@@ -101,6 +106,7 @@ async def delete_document(filename: str):
     Raises:
         HTTPException: If the file does not exist.
     """
+    filename = body.get("filename")
     file_path = UPLOAD_DIR / filename
 
     # Ensure file exists before deletion

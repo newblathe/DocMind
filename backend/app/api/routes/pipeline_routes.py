@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Query
+from fastapi import Request, APIRouter, HTTPException
+
+from backend.app.core.limiter import limiter
 
 from backend.app.core.config import UPLOAD_DIR
 from backend.app.services.document_preprocessor import preprocess_batch
@@ -14,7 +16,8 @@ from pathlib import Path
 router = APIRouter()
 
 @router.post("/run-pipeline", summary="Run analysis on uploaded documents", response_model=PipelineResponse)
-def run_pipeline(payload: PipelineInput):
+@limiter.shared_limit("100/minute", scope="global")
+def run_pipeline(request: Request, payload: PipelineInput):
     """
     Runs the end-to-end pipeline:
     - Loads uploaded documents from the server's upload directory
@@ -22,10 +25,13 @@ def run_pipeline(payload: PipelineInput):
     - Generates theme-based summary of answers
 
     Parameters:
-    - question (str): The user-provided question to extract answers from the documents
+        question (str): The user-provided question to extract answers from the documents
+
+    Raises:
+        HTTPException: If no questions or documents are provided.
 
     Returns:
-    - PipelineResponse: Contains answers per document and a thematic summary
+        PipelineResponse: Contains answers per document and a thematic summary
     """
     # Collect valid document file paths from the upload directory
     file_paths = [
@@ -37,12 +43,12 @@ def run_pipeline(payload: PipelineInput):
     # Handle no files
     if not file_paths:
         logger.warning("Pipeline triggered, but no documents were found.")
-        return PipelineResponse(answers=[], themes="No documents found for analysis.")
+        raise HTTPException(status_code=400, detail="No documents provided for analysis.")
     
     # Handle no question
     if not payload.question.strip() or not payload.question:
         logger.warning("Pipeline triggered without a question.")
-        return PipelineResponse(answers=[], themes="No question provided for analysis.")
+        raise HTTPException(status_code=400, detail="No question provided for analysis.")
 
     logger.info(f"Pipeline started for question: {payload.question}")
     logger.info(f"Total files in upload directory: {len(file_paths)}")

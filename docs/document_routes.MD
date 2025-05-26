@@ -48,6 +48,7 @@ Deletes a document by filename and removes its related FAISS vector entries.
 
 ## Notes
 
+- This route is protected with a global shared rate limiter. If you exceed the request threshold, you'll be redirected to a rate-limit warning page in-app JS handling.
 - Each uploaded document is treated as a unique document identifier (`doc_id`) in the vector store.
 - Uploaded files are assumed to be ready for preprocessing and indexing downstream in the pipeline.
 - This module doesn't trigger analysis; it purely manages raw file lifecycle.

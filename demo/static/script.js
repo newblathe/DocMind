@@ -1,6 +1,13 @@
 // Fetch and populate the document sidebar
 async function refreshSidebar() {
   const res = await fetch("/list");
+  
+  // Rate Limiting
+  if (res.status === 429 || res.redirected) {
+    window.location.href = "/static/rate_limit.html";
+    return
+  }
+
   const data = await res.json();
   const sidebar = document.getElementById("doc-sidebar");
   sidebar.innerHTML = "";
@@ -14,7 +21,18 @@ async function refreshSidebar() {
 
 // Delete a document and refresh the sidebar
 async function deleteDocument(filename) {
-  await fetch(`/delete/${filename}`, { method: "DELETE" });
+  const res = await fetch("/delete", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ filename })
+  });
+
+  // Rate Limiting
+  if (res.status === 429 || res.redirected) {
+    window.location.href = "/static/rate_limit.html";
+    return
+  }
+
   refreshSidebar();
 }
 
@@ -38,7 +56,7 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
     uploadStatus.textContent = "⚠️ Please choose files to upload.";
     setTimeout(() => {
       uploadStatus.textContent = "";
-    }, 3000);
+    }, 1000);
     return;
   }
 
@@ -47,7 +65,14 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
     formData.append("files", file);
   }
 
-  await fetch("/upload", { method: "POST", body: formData });
+  const res = await fetch("/upload", { method: "POST", body: formData });
+  
+  // Rate Limiting
+  if (res.status === 429 || res.redirected) {
+    window.location.href = "/static/rate_limit.html";
+    return
+  }
+
   refreshSidebar();
 
   uploadStatus.style.color = "green";
@@ -56,7 +81,7 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   setTimeout(() => {
     uploadStatus.textContent = "";
     fileListDiv.textContent = "";
-  }, 3000);
+  }, 1000);
 
   // Allow re-upload of same files
   input.value = null;
@@ -67,6 +92,10 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const q = document.getElementById("user-question").value;
   const questionStatus = document.getElementById("question-status");
+  const sidebar = document.getElementById("doc-sidebar");
+
+  const tbody = document.querySelector("#answers-table tbody");
+  const themesBox = document.getElementById("themes");
 
   // Check if a question is entered
   if (!q.trim()) {
@@ -74,11 +103,44 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     questionStatus.textContent = "⚠️ Please enter a question.";
     setTimeout(() => {
       questionStatus.textContent = "";
-    }, 3000);
+    }, 1000);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align:center; color: #777;">
+        No question asked for analysis
+        </td>
+      </tr>`;
+
+    themesBox.textContent = "No question asked for analysis";
+    return;
+  };
+
+  // Check if documents are present
+  if (sidebar.innerHTML === ""){
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="text-align:center; color: #777;">
+        No documents provided for analysis
+        </td>
+      </tr>`;
+
+    themesBox.textContent = "No documents provided for analysis";
+    return
   }
 
-  const tbody = document.querySelector("#answers-table tbody");
-  const themesBox = document.getElementById("themes");
+
+  const res = await fetch("/run-pipeline", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ question: q }),
+  });
+
+
+  // Rate Limiting
+  if (res.status === 429 || res.redirected) {
+    window.location.href = "/static/rate_limit.html";
+    return
+  };
 
   tbody.innerHTML = `
     <tr>
@@ -88,29 +150,11 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     </tr>`;
   themesBox.textContent = "⏳ Analyzing themes...";
 
-  const res = await fetch("/run-pipeline", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question: q }),
-  });
 
   const data = await res.json();
 
   // Populate answers table
   tbody.innerHTML = "";
-
-  // No question entered or No files for Preprocessing
-  if (data.answers.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="3" style="text-align:center; color: #777;">
-        ${data.themes}
-        </td>
-      </tr>`;
-
-    themesBox.textContent = data.themes;
-    return;
-  }
 
   for (const ans of data.answers) {
     const row = `<tr><td>${ans.doc_id}</td><td>${ans.answer}</td><td>${ans.citation}</td></tr>`;

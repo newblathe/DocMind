@@ -115,6 +115,7 @@
 | `main.py` | Initializes the FastAPI app, registers routes, sets up static file serving| [View Docs](docs/main.MD) |
 | `config.py` | Centralizes environment and file path configs; loads variables via `.env` |[View Docs](docs/config.MD) |
 | `logger.py` | Sets up structured application-wide logging  |[View Docs](docs/logger.MD) |
+| `limiter.py`| Defines and applies a global shared rate limiter for all API routes using SlowAPI. |[View Docs](docs/logger.MD)|
 
 ---
 
@@ -162,6 +163,12 @@
 
     - Config-driven paths, logging, and API schema
 
+- **Rate Limiting & Abuse Protection**
+  - Shared global request limit across all routes (e.g., 100 requests/minute per IP)
+
+  - Automatic redirect to `/rate_limit.html` if rate limit is exceeded
+
+
 ---
 
 ## Live Demo
@@ -183,7 +190,7 @@ You can run DocMind either via **Docker** (recommended) or directly using **Uvic
 #### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/docmind.git
+git clone https://github.com/newblathe/docmind.git
 cd docmind
 ```
 
@@ -297,7 +304,7 @@ Visit http://localhost:8000/ui
 - **Render** – Cloud platform for hosting (supports persistent storage)
 
 ### Frontend
-- **HTML + CSS + Vanilla JS** – Lightweight frontend for uploading docs and viewing results
+- **HTML + CSS + Vanilla JS** – Lightweight frontend for uploading documents, triggering analysis, and displaying results with built-in rate-limit handling.
 
 ### Utilities
 - **Logging (Python logging module)** – Structured log output across modules
