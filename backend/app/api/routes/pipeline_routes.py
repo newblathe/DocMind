@@ -25,13 +25,13 @@ def run_pipeline(request: Request, payload: PipelineInput):
     - Generates theme-based summary of answers
 
     Parameters:
-        question (str): The user-provided question to extract answers from the documents
+        payload (PipelineInput): The input data containing the user question.
 
     Raises:
         HTTPException: If no questions or documents are provided.
 
     Returns:
-        PipelineResponse: Contains answers per document and a thematic summary
+        PipelineResponse: Contains answers per document and a thematic summary.
     """
     # Collect valid document file paths from the upload directory
     file_paths = [
