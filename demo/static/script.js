@@ -1,11 +1,11 @@
 // Fetch and populate the document sidebar
 async function refreshSidebar() {
   const res = await fetch("/list");
-  
+
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
     window.location.href = "/static/rate_limit.html";
-    return
+    return;
   }
 
   const data = await res.json();
@@ -24,13 +24,13 @@ async function deleteDocument(filename) {
   const res = await fetch("/delete", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename })
+    body: JSON.stringify({ filename }),
   });
 
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
     window.location.href = "/static/rate_limit.html";
-    return
+    return;
   }
 
   refreshSidebar();
@@ -66,11 +66,11 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   }
 
   const res = await fetch("/upload", { method: "POST", body: formData });
-  
+
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
     window.location.href = "/static/rate_limit.html";
-    return
+    return;
   }
 
   refreshSidebar();
@@ -113,10 +113,10 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
 
     themesBox.textContent = "No question asked for analysis";
     return;
-  };
+  }
 
   // Check if documents are present
-  if (sidebar.innerHTML === ""){
+  if (sidebar.innerHTML === "") {
     tbody.innerHTML = `
       <tr>
         <td colspan="3" style="text-align:center; color: #777;">
@@ -125,9 +125,8 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
       </tr>`;
 
     themesBox.textContent = "No documents provided for analysis";
-    return
+    return;
   }
-
 
   const res = await fetch("/run-pipeline", {
     method: "POST",
@@ -135,12 +134,11 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     body: JSON.stringify({ question: q }),
   });
 
-
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
     window.location.href = "/static/rate_limit.html";
-    return
-  };
+    return;
+  }
 
   tbody.innerHTML = `
     <tr>
@@ -149,7 +147,6 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
       </td>
     </tr>`;
   themesBox.textContent = "⏳ Analyzing themes...";
-
 
   const data = await res.json();
 
