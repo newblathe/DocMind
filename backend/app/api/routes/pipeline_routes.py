@@ -33,6 +33,7 @@ def run_pipeline(request: Request, payload: PipelineInput):
         HTTPException: 
             - If no questions or documents are provided.
             - If an analysis is already in progress for the current client.
+            - If an analysis is already in progress for the current client
 
     Returns:
         PipelineResponse: Contains answers per document and a thematic summary.
