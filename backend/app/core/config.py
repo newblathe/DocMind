@@ -19,7 +19,7 @@ INDEX_FILE = INDEX_PATH / "vector_index.faiss"
 META_FILE = META_PATH / "vector_metadata.npy"
 
 
-# Env Variables
+# Environment Variables
 def get_env_variable(key: str) -> str:
     value = os.getenv(key)
     if value is None:
