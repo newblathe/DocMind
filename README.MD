@@ -174,7 +174,8 @@
 ## Live Demo
 
 Access the app at:  
-[https://prasuk-jain-wasserstoff-aiinterntask.onrender.com](https://prasuk-jain-wasserstoff-aiinterntask.onrender.com)
+[https://docmind-production-f956.up.railway.app/](https://docmind-production-f956.up.railway.app/)
+> **Note:** While accessing the live demo, uploaded files may be visible to other users because the app is hosted on [Railway](https://railway.app), which runs a shared containerized environment without user-isolated storage. This setup simplifies deployment for demonstration purposes.
 
 Upload your documents, ask a question, and view:
 - Per Document answers
