@@ -15,6 +15,8 @@ from pathlib import Path
 
 router = APIRouter()
 
+active_analysis = set()
+
 @router.post("/run-pipeline", summary="Run analysis on uploaded documents", response_model=PipelineResponse)
 @limiter.shared_limit("100/minute", scope="global")
 def run_pipeline(request: Request, payload: PipelineInput):
@@ -28,7 +30,9 @@ def run_pipeline(request: Request, payload: PipelineInput):
         payload (PipelineInput): The input data containing the user question.
 
     Raises:
-        HTTPException: If no questions or documents are provided.
+        HTTPException: 
+            - If no questions or documents are provided.
+            - If an analysis is already in progress for the current client.
 
     Returns:
         PipelineResponse: Contains answers per document and a thematic summary.
@@ -49,6 +53,16 @@ def run_pipeline(request: Request, payload: PipelineInput):
     if not payload.question.strip() or not payload.question:
         logger.warning("Pipeline triggered without a question.")
         raise HTTPException(status_code=400, detail="No question provided for analysis.")
+    
+
+    client_ip = request.client.host
+
+    # Handle multiple concurrent requests from the same user
+    if client_ip in active_analysis:
+        logger.warning(f"Analysis request rejected: already in progress for IP {client_ip}")
+        raise HTTPException(status_code=409, detail="An analysis is already in progress. Please wait.")
+    
+    active_analysis.add(client_ip)
 
     logger.info(f"Pipeline started for question: {payload.question}")
     logger.info(f"Total files in upload directory: {len(file_paths)}")
@@ -86,3 +100,5 @@ def run_pipeline(request: Request, payload: PipelineInput):
     except Exception as e:
         logger.error(f"Pipeline failed with exception: {e}", exc_info=True)
         return PipelineResponse(answers=[], themes=f"Pipeline failed: {str(e)}")
+    finally:
+        active_analysis.remove(client_ip)

@@ -93,6 +93,7 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
   const q = document.getElementById("user-question").value;
   const questionStatus = document.getElementById("question-status");
   const sidebar = document.getElementById("doc-sidebar");
+  const analyzeBtn = document.getElementById("analyzeBtn");
 
   const tbody = document.querySelector("#answers-table tbody");
   const themesBox = document.getElementById("themes");
@@ -128,6 +129,18 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     return;
   }
 
+  // Disabale the analyze button, once clicked
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = "Analyzing...";
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="3" style="text-align:center; color:#555; padding:1rem;">
+        ⏳ Loading answers...
+      </td>
+    </tr>`;
+  themesBox.textContent = "⏳ Analyzing themes...";
+
   const res = await fetch("/run-pipeline", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -139,14 +152,6 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     window.location.href = "/static/rate_limit.html";
     return;
   }
-
-  tbody.innerHTML = `
-    <tr>
-      <td colspan="3" style="text-align:center; color:#555; padding:1rem;">
-        ⏳ Loading answers...
-      </td>
-    </tr>`;
-  themesBox.textContent = "⏳ Analyzing themes...";
 
   const data = await res.json();
 
@@ -160,6 +165,13 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
 
   // Show extracted themes
   themesBox.textContent = data.themes;
+
+  // Enable the analysis button again
+  analyzeBtn.textContent = "Analysis Completed";
+  setTimeout(() => {
+    analyzeBtn.disabled = false;
+    analyzeBtn.textContent = "Run Analysis";
+  }, 2000);
 });
 
 // Initial sidebar load
