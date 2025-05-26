@@ -20,7 +20,7 @@ router = APIRouter()
 def run_pipeline(request: Request, payload: PipelineInput):
     """
     Runs the end-to-end pipeline:
-    - Loads uploaded documents from the server's upload directory
+    - Preprocesses the newly uploaded docuemnts.
     - Extracts answers and citations per document
     - Generates theme-based summary of answers
 
