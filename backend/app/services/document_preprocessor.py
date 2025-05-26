@@ -20,7 +20,6 @@ else:
 def extract_text_from_pdf(file_path: str) -> str:
     """
     Extracts text content from a PDF file using PyMuPDF.
-    Skips embedded images — use OCR for those instead.
 
     Parameters:
     - file_path: Path to the PDF file
@@ -81,7 +80,9 @@ def extract_text_from_txt(file_path: str) -> str:
 
 def preprocess_document(file_path: str, doc_id: str):
     """
-    Preprocesses a single document (PDF, image, docx or text)
+    This function reads the contents of a supported document type (PDF, image, DOCX, or TXT),
+    extracts the raw text, splits it into cleaned chunks, and stores them in a vector index 
+    after removing any existing entries for the same document ID.
 
     Parameters:
     - file_path: Full path to the input document
