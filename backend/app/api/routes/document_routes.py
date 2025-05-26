@@ -28,7 +28,7 @@ async def upload_documents(request: Request, files: List[UploadFile] = File(...)
         files (List[UploadFile]): List of Documents sent via multipart/form-data
     
     Returns:
-        dict: A dictionary containing list of successfully uploaded filenames.
+       DocumentUploadResponse : Contains a list of successfully uploaded filenames.
     
     Raises:
         HTTPException: If an unsupported file extension is provided or no files are provided.
@@ -83,7 +83,7 @@ async def list_documents(request: Request):
     Scans the upload directory and returns a list of all file names stored there
 
     Returns:
-        dict: A dictionary containing the list of document filenames.
+        DocumentListResponse: Contains a list of document filenames.
     """
 
     # Read all filenames from the upload directory
@@ -101,7 +101,7 @@ async def delete_document(request: Request, body: dict = Body(...)):
         filename (str): The exact name of the file to delete.
     
     Returns:
-        dict: A dictionary confirming which file was deleted.
+        DeleteResponse: Contains name of the file deleted.
     
     Raises:
         HTTPException: If the file does not exist.
