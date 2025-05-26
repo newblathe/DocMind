@@ -207,7 +207,7 @@ docker run -p 8000:8000 --env-file .env docmind
 
 #### 4. Open the app
 
-Visit http://localhost:8000/ui in your browser.
+Visit http://localhost:8000/ in your browser.
 
 ### Option 2: Run with Uvicorn (Local Python)
 
