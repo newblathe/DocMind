@@ -284,6 +284,7 @@ Visit http://localhost:8000/
 - **FastAPI** – Web framework for building APIs
 - **Pydantic** – Data validation and schema modeling
 - **Uvicorn** – ASGI server for running FastAPI
+- **Slowapi** – For Rate Limiting
 
 ### Document Processing
 - **PyMuPDF** – Text extraction from PDFs
