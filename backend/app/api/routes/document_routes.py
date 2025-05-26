@@ -95,7 +95,7 @@ async def list_documents(request: Request):
 @limiter.shared_limit("100/minute", scope="global") # Rate Limiting
 async def delete_document(request: Request, body: dict = Body(...)):
     """
-    Delete a document from the upload directory by filename.
+    Delete a document from the upload directory by filename and from the vector database by doc_id.
 
     Args:
         filename (str): The exact name of the file to delete.
