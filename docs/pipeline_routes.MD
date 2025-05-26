@@ -70,7 +70,8 @@ This module defines the core pipeline endpoint in DocMind:
 - `logger` from `logger.py` for structured logging throughout execution
 
 ## Notes
-- This route is protected with a global shared rate limiter. If you exceed the request threshold, you'll be redirected to a rate-limit warning page in-app JS handling.
+- This route is protected with a global shared rate limiter. If a user exceeds the request threshold, the user will be redirected to a rate-limit warning page.
+- Prevents concurrent analysis requests from the same client IP.
 - Only documents with extensions: .pdf, .png, .jpg, .jpeg, .txt, .docx are processed.
 - Handles empty document sets and missing questions gracefully.
 - Catches and logs all exceptions with full trace.
