@@ -86,7 +86,7 @@ def preprocess_document(file_path: str, doc_id: str):
 
     Parameters:
     - file_path: Full path to the input document
-    - doc_id: Assigned document ID (e.g., 'DOC001')
+    - doc_id: Assigned document ID (e.g., 'DOC001.pdf')
 
     """
 
