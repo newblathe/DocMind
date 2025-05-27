@@ -37,7 +37,7 @@ This module defines the core pipeline endpoint in DocMind:
 ```
 
 ## Pipeline Flow
-1. Load all valid documents from UPLOAD_DIR
+1. Load all valid documents from `UPLOAD_DIR/{session_id}/`
 
 2. If no documents → return early with warning
 
@@ -61,7 +61,7 @@ This module defines the core pipeline endpoint in DocMind:
 
 ## Dependencies
 
-- `UPLOAD_DIR` from `config.py`, base directory for uploaded files
+- `UPLOAD_DIR` from `config.py`, base directory for uploaded files; the pipeline scans only the session-specific subfolder `UPLOAD_DIR/{session_id}/` to retrieve files.
 - `is_document_indexed()` from `vector_store.py`, checks FAISS to avoid redundant embedding
 - `preprocess_batch()` from `document_preprocessor.py`, extracts and chunks documents
 - `extract_answers_from_docs()` from `query_engine.py`, calls LLM to generate answers
