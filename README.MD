@@ -264,7 +264,7 @@ Visit http://localhost:8000/
 │ │ │ ├── theme_identifier.py # Extracts themes from answers
 │ │ │ └── vector_store.py # FAISS vector store operations
 │ ├── data/
-│   ├── uploads/ # Uploaded user files
+│   ├── uploads/{session_id}/ # Uploaded files stored per user session
 │   └── vector_store/ # FAISS index and metadata
 │
 ├── demo/
