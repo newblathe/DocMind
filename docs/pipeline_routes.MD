@@ -8,7 +8,7 @@ This module defines the core pipeline endpoint in DocMind:
 ## Responsibilities
 
 - Handle `/run-pipeline` API call
-- Collect all uploaded documents
+- Collect uploaded documents per session
 - Preprocess new documents (extract, chunk, embed), skip documents that are already indexed
 - Embed the user’s question and retrieve top-k chunks
 - Use Groq LLM to:
