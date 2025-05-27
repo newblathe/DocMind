@@ -61,7 +61,7 @@ This module handles document parsing and text extraction for all supported file 
 - Document ID (`doc_id`) is in the format `session_id:filename`:
   - `session_id` is the unique identifier for the user's current session, which is stored in the browser's `localStorage`
   - `filename` is the original name of the uploaded file (including its extension)
-      This format ensures that:
+  - This format ensures that:
         - Each document is uniquely identifiable even if users upload files with the same name
         - Files can be logically grouped and retrieved per session
         - It prevents collisions across sessions in both storage and vector index references
