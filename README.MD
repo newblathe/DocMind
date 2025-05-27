@@ -179,7 +179,8 @@
 ## Live Demo
 
 Access the app at:  
-[https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/) (Best Viewed on Desktop)
+[https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/) 
+> **Best viewed on desktop**
 
 Upload your documents, ask a question, and view:
 - Per Document answers
