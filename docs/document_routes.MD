@@ -19,26 +19,27 @@ This module defines API routes for managing uploaded documents in **DocMind**. I
 Upload one or more documents via multipart/form-data.
 
 - Supported formats: `.pdf`, `.png`, `.jpg`, `.jpeg`, `.txt`, `.docx`
-- Files are saved into the `uploads/` directory
+- Files are saved into the `uploads/{session_id}` directory
 - Filename conflicts are resolved with automatic numbering (e.g., `report 2.pdf`)
+- Requires a `session_id` (from client-side localStorage) to associate uploads with a user session
 
 ### `GET /list`
-Returns a list of all documents currently uploaded to the backend.
+Returns a list of all documents uploaded **within the current session**.
 
-- Scans the upload directory
-- Returns a clean list of file names
+- Scans the `uploads/{session_id}/` directory
+- Returns a clean list of file names for the current session.
 
 ### `DELETE /delete/{filename}`
-Deletes a document by filename and removes its related FAISS vector entries.
+Deletes a document from the current session and removes its associated FAISS vector entries.
 
-- Verifies existence before deletion
-- Calls `remove_doc_from_index()` to ensure vector store stays clean
+- Verifies existence within the current `uploads/{session_id}/` folder
+- Calls `remove_doc_from_index()` to maintain vector store integrity
 
 ---
 
 ## Dependencies
 
-- `UPLOAD_DIR` from `config.py`: defines where uploads are stored
+- `UPLOAD_DIR` from `config.py`: base directory for storing uploaded documents; session-specific subdirectories (e.g., `uploads/{session_id}/`) are dynamically created in the route logic
 - `remove_doc_from_index()` from `vector_store.py`: used during deletion
 - `DocumentUploadResponse`, `DocumentListResponse`, `DeleteResponse` from `models.py`
 - Uses `FastAPI`’s `APIRouter` for endpoint registration
