@@ -58,7 +58,7 @@ This module handles document parsing and text extraction for all supported file 
 
 ## Notes
 
-- Document ID (`doc_id`) is the filename with extension.
+- Document ID (`doc_id`) is in the format `session_id:filename` where session_id is the current session and filename is the name of the file with the extension.
 - Chunks are stripped and filtered to remove empty lines.
 - Designed to avoid reprocessing by clearing old FAISS entries first.
 
