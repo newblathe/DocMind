@@ -317,3 +317,34 @@ Visit http://localhost:8000/
 - **Logging (Python logging module)** – Structured log output across modules
 - **dotenv** – Environment variable loading
 - **Pathlib / os** – File path management and directory handling
+
+## Future Improvements
+
+- **Per-User Authentication & Encrypted Storage**
+
+    - Implement OAuth2/JWT-based login for secure user access
+
+    - Enable encrypted, user-isolated file storage and query history
+
+- **Redis-Based Rate Limiting (Per-User/IP)**
+
+    - Integrate Redis for scalable, distributed rate limiting across API endpoints
+
+    - Enforce request quotas per session or user to prevent abuse
+
+- **Redis-Based Session Locks & Query Control**
+
+    - Prevent overlapping executions from the same session using Redis locks
+
+    - Enable queued or rejected requests if a session is already processing
+
+    - Manage parallel execution across multiple sessions while preserving per-session consistency
+
+- **Concurrent Session Management**
+
+    - Improve execution tracking to safely support simultaneous queries from multiple sessions
+
+
+- **Parallel Query Execution**
+
+    - Scale backend to support concurrent document analysis for multiple users using multi-worker setups
