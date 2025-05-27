@@ -254,7 +254,8 @@ Visit http://localhost:8000/
 │ │ │   └── pipeline_routes.py # Pipeline trigger API
 │ │ ├── core/
 │ │ │ ├── config.py # Configuration and constants
-│ │ │ └── logger.py # Application-wide logging
+│ │ │ ├── logger.py # Application-wide logging
+│ │ │ └── limiter.py # Rate Limiting
 │ │ ├── models/
 │ │ │ └── models.py # Pydantic request/response models
 │ │ ├── services/
