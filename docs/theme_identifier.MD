@@ -1,4 +1,4 @@
-# 🎯 `theme_identifier.py`
+# `theme_identifier.py`
 
 This module extracts high-level themes from multiple document-specific answers using **Groq's LLM**. It helps summarize and group insights at a conceptual level after document-level question answering has been performed.
 
