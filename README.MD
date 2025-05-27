@@ -163,7 +163,7 @@
     - Config-driven paths, logging, and API schema
 
 - **Rate Limiting & Abuse Protection**
-    - Shared global request limit across all routes (e.g., 100 requests/minute per IP)
+    - Shared global request limit across all routes (100 requests/minute per IP)
 
     - Automatic redirect to `/rate_limit.html` if rate limit is exceeded
 
