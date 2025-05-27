@@ -179,7 +179,7 @@
 ## Live Demo
 
 Access the app at:  
-[https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/)
+[https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/) (Best Viewed on Desktop)
 
 Upload your documents, ask a question, and view:
 - Per Document answers
@@ -349,3 +349,7 @@ Visit http://localhost:8000/
 - **Parallel Query Execution**
 
     - Scale backend to support concurrent document analysis for multiple users using multi-worker setups
+
+- **Responsive Frontend for All Devices**
+
+    - Optimize the UI for mobile, tablet, and smaller screens
