@@ -1,4 +1,4 @@
-from fastapi import Request, APIRouter, HTTPException
+from fastapi import Request, APIRouter, HTTPException, Query
 
 from backend.app.core.limiter import limiter
 
@@ -11,7 +11,7 @@ from backend.app.models.models import PipelineResponse, PipelineInput
 from backend.app.core.logger import logger
 
 import os
-from pathlib import Path
+import time
 
 router = APIRouter()
 
@@ -19,7 +19,7 @@ active_analysis = set()
 
 @router.post("/run-pipeline", summary="Run analysis on uploaded documents", response_model=PipelineResponse)
 @limiter.shared_limit("100/minute", scope="global")
-def run_pipeline(request: Request, payload: PipelineInput):
+async def run_pipeline(request: Request, *, session_id: str = Query(...), payload: PipelineInput):
     """
     Runs the end-to-end pipeline:
     - Preprocesses the newly uploaded docuemnts.
@@ -27,21 +27,29 @@ def run_pipeline(request: Request, payload: PipelineInput):
     - Generates theme-based summary of answers
 
     Parameters:
+        request (Request): Request object used to access client IP for concurrency checks.
+        session_id (str): Required session ID passed in the query to isolate user data and results.
         payload (PipelineInput): The input data containing the user question.
 
     Raises:
-        HTTPException: 
+        HTTPException:
+            - If no documents exists for the current session.
             - If no questions or documents are provided.
-            - If an analysis is already in progress for the current client.
-            - If an analysis is already in progress for the current client
 
     Returns:
         PipelineResponse: Contains answers per document and a thematic summary.
+
     """
-    # Collect valid document file paths from the upload directory
+    # Handle no session folder for the current session
+    session_path = UPLOAD_DIR / session_id
+    if not session_path.exists():
+        logger.warning(f"No upload folder found for session {session_id}.")
+        raise HTTPException(status_code=400, detail="No documents found for this session.")
+    
+    # Collect valid document file paths for this session only
     file_paths = [
-        str(UPLOAD_DIR / f)
-        for f in os.listdir(UPLOAD_DIR)
+        str(session_path / f)
+        for f in os.listdir(session_path)
         if f.lower().endswith(('.pdf', '.png', '.jpg', '.jpeg', '.txt', '.docx'))
     ]
 
@@ -54,16 +62,7 @@ def run_pipeline(request: Request, payload: PipelineInput):
     if not payload.question.strip() or not payload.question:
         logger.warning("Pipeline triggered without a question.")
         raise HTTPException(status_code=400, detail="No question provided for analysis.")
-    
 
-    client_ip = request.client.host
-
-    # Handle multiple concurrent requests from the same user
-    if client_ip in active_analysis:
-        logger.warning(f"Analysis request rejected: already in progress for IP {client_ip}")
-        raise HTTPException(status_code=409, detail="An analysis is already in progress. Please wait.")
-    
-    active_analysis.add(client_ip)
 
     logger.info(f"Pipeline started for question: {payload.question}")
     logger.info(f"Total files in upload directory: {len(file_paths)}")
@@ -75,7 +74,10 @@ def run_pipeline(request: Request, payload: PipelineInput):
         # Filter and preprocess only new documents
         docs_to_preprocess = []
         for path in file_paths:
-            doc_id = os.path.basename(path)
+            filename = os.path.basename(path)
+
+            # Generate session-prefixed doc_ids
+            doc_id = f"{session_id}:{filename}"
             doc_ids.append(doc_id)
 
             if not is_document_indexed(doc_id):
@@ -101,5 +103,3 @@ def run_pipeline(request: Request, payload: PipelineInput):
     except Exception as e:
         logger.error(f"Pipeline failed with exception: {e}", exc_info=True)
         return PipelineResponse(answers=[], themes=f"Pipeline failed: {str(e)}")
-    finally:
-        active_analysis.remove(client_ip)

@@ -129,7 +129,13 @@ def preprocess_batch(file_paths: List[str]):
     processed = []
 
     for path in (file_paths):
-        doc_id = os.path.basename(path)
+
+        # Generate session-prefixed doc_ids
+        parts = str(path).split(os.sep)
+        session_id = parts[-2]
+        filename = parts[-1]
+        doc_id = f"{session_id}:{filename}"
+
         try:
             preprocess_document(path, doc_id)
             processed.append(doc_id)

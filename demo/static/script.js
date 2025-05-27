@@ -1,6 +1,14 @@
+// Persist a unique session ID in browser localStorage for backend isolation
+const sessionId = localStorage.getItem("session_id") || crypto.randomUUID();
+localStorage.setItem("session_id", sessionId);
+
+console.log("Session ID:", sessionId);
+
 // Fetch and populate the document sidebar
 async function refreshSidebar() {
-  const res = await fetch("/list");
+
+  // Pass session_id to backend to scope file operations
+  const res = await fetch(`/list?session_id=${sessionId}`);
 
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
@@ -21,7 +29,8 @@ async function refreshSidebar() {
 
 // Delete a document and refresh the sidebar
 async function deleteDocument(filename) {
-  const res = await fetch("/delete", {
+  // Pass session_id to backend to scope file operations
+  const res = await fetch(`/delete?session_id=${sessionId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ filename }),
@@ -65,7 +74,8 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
     formData.append("files", file);
   }
 
-  const res = await fetch("/upload", { method: "POST", body: formData });
+  // Pass session_id to backend to scope file operations
+  const res = await fetch(`/upload?session_id=${sessionId}`, { method: "POST", body: formData });
 
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
@@ -141,7 +151,8 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     </tr>`;
   themesBox.textContent = "⏳ Analyzing themes...";
 
-  const res = await fetch("/run-pipeline", {
+  // Pass session_id to backend to scope file operations
+  const res = await fetch(`/run-pipeline?session_id=${sessionId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ question: q }),

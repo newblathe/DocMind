@@ -164,9 +164,15 @@
     - Config-driven paths, logging, and API schema
 
 - **Rate Limiting & Abuse Protection**
-  - Shared global request limit across all routes (e.g., 100 requests/minute per IP)
+    - Shared global request limit across all routes (e.g., 100 requests/minute per IP)
 
-  - Automatic redirect to `/rate_limit.html` if rate limit is exceeded
+    - Automatic redirect to `/rate_limit.html` if rate limit is exceeded
+
+- **Session-Based Isolation**
+
+    - Each user session is uniquely tracked using localStorage and a generated session ID
+
+    - Uploaded files are stored in per-session directories for logical separation
 
 
 ---
@@ -303,7 +309,6 @@ Visit http://localhost:8000/
 
 ### Deployment
 - **Docker** – Containerization for consistent deployment
-- **Render** – Cloud platform for hosting (supports persistent storage)
 
 ### Frontend
 - **HTML + CSS + Vanilla JS** – Lightweight frontend for uploading documents, triggering analysis, and displaying results with built-in rate-limit handling.

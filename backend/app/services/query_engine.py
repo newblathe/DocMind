@@ -66,8 +66,6 @@ You are an AI assistant. Given the following paragraphs from a document and a us
    - If possible, use exact references based on the document structure. Each paragraph is clearly separated.
    - If the document is not relevant, set the citation as `"Unknown"`.
 
-Document ID: {doc_id}
-
 Paragraphs:
 
 {combined_chunks}
@@ -118,7 +116,7 @@ Do not return markdown, backticks, or multi-line output.
             # Add result only if a meaningful answer is found
             if answer.lower() != "no relevant information found":
                 results.append({
-                    "doc_id": doc_id,
+                    "doc_id": doc_id.split(":", 1)[1],  # Strip session_id prefix before appending doc_id in results
                     "answer": answer,
                     "citation": citation
                 })
