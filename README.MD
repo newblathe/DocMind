@@ -124,7 +124,6 @@
 
     - Upload multiple file types: .pdf, .docx, .txt, .jpg, .png
 
-    - Files stored persistently for reuse across sessions
 
 - **Smart Text Extraction**
 
