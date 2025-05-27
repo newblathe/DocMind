@@ -8,9 +8,8 @@ This is the **entry point** of the FastAPI application for DocMind. It initializ
 
 - Instantiate the FastAPI app
 - Register routers from `document_routes.py` and `pipeline_routes.py`
-- Mount the frontend at `/ui` using `StaticFiles`
+- Mount the frontend at `/static` using `StaticFiles`
 - Enable permissive CORS (configurable in production)
-- Redirect `/` to `/ui` for seamless UI access
 
 ---
 
