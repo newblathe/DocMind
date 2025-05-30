@@ -15,7 +15,7 @@ import time
 
 router = APIRouter()
 
-active_analysis = set()
+
 
 @router.post("/run-pipeline", summary="Run analysis on uploaded documents", response_model=PipelineResponse)
 @limiter.shared_limit("100/minute", scope="global")
