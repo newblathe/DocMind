@@ -197,7 +197,6 @@ You can run DocMind either via **Docker** (recommended) or directly using **Uvic
 
 ```bash
 git clone https://github.com/newblathe/DocMind.git
-cd docmind
 ```
 
 #### 2. Create a .env file
