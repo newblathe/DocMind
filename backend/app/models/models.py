@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import Optional, List
 
 # Response when uploading files
 class DocumentUploadResponse(BaseModel):
@@ -22,6 +22,7 @@ class AnswerItem(BaseModel):
 # Request model for the pipeline
 class PipelineInput(BaseModel):
     question: str
+    selected_files: Optional[List[str]] = None
 
 # Full response model for the pipeline
 class PipelineResponse(BaseModel):

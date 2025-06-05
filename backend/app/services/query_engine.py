@@ -16,7 +16,7 @@ from backend.app.core.config import GROQ_API_KEY
 # Initialize Groq client using the API key
 client = Groq(api_key=GROQ_API_KEY)
 
-def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]:
+def extract_answers_from_docs(session_id: str, user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]:
     """
     Extracts relevant answers and citations from a set of documents based on a user query using Groq's LLM.
 
@@ -28,6 +28,7 @@ def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[
     exactly as they appear in the document text.
 
     Parameters:
+    - session_id (str): Session ID to isolate user data and results.
     - user_query (str): The user's question or prompt to guide the extraction.
     - doc_ids (List[str]): A list which contains the doc_id for each document.
 
@@ -44,7 +45,7 @@ def extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[
     # Iterate through all documents and extract answer + citation from each
     for doc_id in doc_ids:
         logger.info(f"Retrieving top chunks for document: {doc_id}")
-        top_chunks = search_top_k_chunks(doc_id, user_query, k=5)
+        top_chunks = search_top_k_chunks(session_id, doc_id, user_query, k=5)
 
         if not top_chunks:
             logger.warning(f"No relevant chunks found for {doc_id}. Skipping.")

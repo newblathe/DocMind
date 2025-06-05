@@ -108,7 +108,7 @@
 | `document_routes.py` | **Backend route** for uploading, listing, and deleting documents from storage| [View Docs](docs/document_routes.MD) |
 | `pipeline_routes.py` | **Backend route** that triggers the full QA + theme extraction pipeline| [View Docs](docs/pipeline_routes.MD) |
 | `document_preprocessor.py` | Extracts text from PDFs, images, DOCX, and TXT|[View Docs](docs/document_preprocessor.MD) |
-| `vector_store.py` | Manages FAISS-based semantic indexing, chunk-level retrieval|[View Docs](docs/vector_store.MD) |
+| `vector_store.py` | Manages session-based FAISS indexes and per-document chunk-level retrieval|[View Docs](docs/vector_store.MD) |
 | `query_engine.py` | Uses Groq LLM to extract detailed answers and citations per document|[View Docs](docs/query_engine.MD) |
 | `theme_identifier.py` | Clusters answers into themes using Groq LLM|[View Docs](docs/theme_identifier.MD) |
 | `models.py` | Defines Pydantic models for API requests and responses|[View Docs](docs/models.MD) |
@@ -172,6 +172,8 @@
     - Each user session is uniquely tracked using localStorage and a generated session ID
 
     - Uploaded files are stored in per-session directories for logical separation
+
+    - Each session maintains its own FAISS index and metadata
 
 
 ---
@@ -265,7 +267,7 @@ Visit http://localhost:8000/
 │ │ │ └── vector_store.py # FAISS vector store operations
 │ ├── data/
 │   ├── uploads/{session_id}/ # Uploaded files stored per user session
-│   └── vector_store/ # FAISS index and metadata
+│   └── vector_store/{session_id} # FAISS index and metadata
 │
 ├── demo/
 │ ├── index.html # Frontend UI (HTML)

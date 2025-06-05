@@ -40,7 +40,7 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
         PipelineResponse: Contains answers per document and a thematic summary.
 
     """
-    # Handle no session folder for the current session
+    # Handle no no files uploaded for the current session
     session_path = UPLOAD_DIR / session_id
     if not session_path.exists():
         logger.warning(f"No upload folder found for session {session_id}.")
@@ -49,14 +49,14 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
     # Collect valid document file paths for this session only
     file_paths = [
         str(session_path / f)
-        for f in os.listdir(session_path)
+        for f in (payload.selected_files or [])
         if f.lower().endswith(('.pdf', '.png', '.jpg', '.jpeg', '.txt', '.docx'))
     ]
 
-    # Handle no files
+    # Handle no files selcted
     if not file_paths:
-        logger.warning("Pipeline triggered, but no documents were found.")
-        raise HTTPException(status_code=400, detail="No documents provided for analysis.")
+        logger.warning("No valid documents selected for analysis.")
+        raise HTTPException(status_code=400, detail="No valid documents selected for analysis.")
     
     # Handle no question
     if not payload.question.strip() or not payload.question:
@@ -65,7 +65,7 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
 
 
     logger.info(f"Pipeline started for question: {payload.question}")
-    logger.info(f"Total files in upload directory: {len(file_paths)}")
+    logger.info(f"Total uploaded files in session '{session_id}': {len(os.listdir(session_path))}")
 
 
     try:
@@ -80,18 +80,18 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
             doc_id = f"{session_id}:{filename}"
             doc_ids.append(doc_id)
 
-            if not is_document_indexed(doc_id):
+            if not is_document_indexed(session_id, doc_id):
                 docs_to_preprocess.append(path)
         
         logger.info(f"{len(docs_to_preprocess)} document(s) need preprocessing.")
 
         if docs_to_preprocess:
             logger.info(f"Preprocessing files: {docs_to_preprocess}")
-            preprocess_batch(docs_to_preprocess)
+            preprocess_batch(session_id, docs_to_preprocess)
 
         # Extract answers
         logger.info("Extracting answers from documents...")
-        answers = extract_answers_from_docs(payload.question, doc_ids)
+        answers = extract_answers_from_docs(session_id, payload.question, doc_ids)
         logger.info(f"Extraction complete. {len(answers)} answers returned.")
 
         # Generate themes

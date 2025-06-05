@@ -17,22 +17,39 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 
 ## Key Functions
 
-### `add_chunks_to_index(doc_id: str, chunks: List[str])`
+### `init_or_load_index(session_id: str)`
+- Loads or creates a FAISS index from vector_store/<session_id>/vector_index.faiss
+
+- Loads or initializes corresponding meta.npy metadata
+
+- Ensures vector index and metadata are session-scoped and kept separate per user/session
+
+### `save_index(session_id: str, index, metadata)`
+- Serializes and writes the FAISS index to disk in the session's directory
+
+- Saves metadata to a .npy file alongside the index
+
+- Guarantees session-level persistence without affecting other users or sessions
+
+
+
+### `add_chunks_to_index(session_id: str, doc_id: str, chunks: List[str])`
 - Embeds each chunk using a sentence transformer
 - Assigns stable, unique FAISS IDs to avoid duplication
 - Stores each chunk in both FAISS and a local metadata array
 - Writes FAISS index and metadata to disk
+- Ensures session-level isolation by storing vectors and metadata in `backend/data/vector_store/{session_id}`
 
 ---
 
-### `remove_doc_from_index(doc_id: str)`
+### `remove_doc_from_index(session_id: str, doc_id: str)`
 - Looks up all FAISS IDs associated with the `doc_id`
 - Removes them from both the FAISS index and metadata list
 - Updates persistent storage on disk
-
+- Maintains session-level isolation by deleting only the target document's data in `backend/data/vector_store/{session_id}`
 ---
 
-### `search_top_k_chunks(doc_id: str, query: str, k: int = 3)`
+### `search_top_k_chunks(session_id: doc_id: str, query: str, k: int = 3)`
 - Embeds the user query
 - Filters relevant metadata for the given doc
 - Creates a temporary FAISS index to run similarity search
@@ -40,7 +57,7 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 
 ---
 
-### `is_document_indexed(doc_id: str) -> bool`
+### `is_document_indexed(session_id: str, doc_id: str) -> bool`
 - Checks whether the document has been previously embedded
 - Avoids redundant reprocessing in the pipeline
 
@@ -69,9 +86,7 @@ faiss_id = int(md5(hash_input).hexdigest()[:12], 16) % (10**9)
 ```
 This ensures document re-ingestion doesn't produce duplicates.
 ## PERSISTENCE
-- FAISS index is stored at: `INDEX_FILE`
-
-- Metadata is stored at: `META_FILE`
+- Each session has its own FAISS index and metadata file named vector_index.faiss and meta.npy, stored in `backend/data/vector_store/{session_id}`
 
 - Both are updated every time new chunks are added or removed
 

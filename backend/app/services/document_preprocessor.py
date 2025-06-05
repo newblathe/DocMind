@@ -22,7 +22,7 @@ def extract_text_from_pdf(file_path: str) -> str:
     Extracts text content from a PDF file using PyMuPDF.
 
     Parameters:
-    - file_path: Path to the PDF file
+    - file_path (str): Path to the PDF file
 
     Returns:
     - Cleaned string containing all extracted text from all pages.
@@ -43,7 +43,7 @@ def extract_text_from_image(file_path: str) -> str:
     Uses Tesseract OCR to extract text from image files (.png, .jpg, .jpeg).
 
     Parameters:
-    - file_path: Path to the image file
+    - file_path (str): Path to the image file
 
     Returns:
     - Raw text extracted from the image using OCR
@@ -57,7 +57,7 @@ def extract_text_from_docx(file_path: str) -> str:
     Extracts text content from a Microsoft Word (.docx) document.
 
     Parameters:
-    - file_path: Path to the .docx file
+    - file_path (str): Path to the .docx file
 
     Returns:
     - Combined text from all non-empty paragraphs in the document
@@ -70,7 +70,7 @@ def extract_text_from_txt(file_path: str) -> str:
     Reads and returns text from a plain text (.txt) file.
 
     Parameters:
-    - file_path: Path to the .txt file
+    - file_path (str): Path to the .txt file
 
     Returns:
     - Full content of the text file as a string
@@ -78,15 +78,18 @@ def extract_text_from_txt(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
-def preprocess_document(file_path: str, doc_id: str):
+def preprocess_document(session_id: str, file_path: str, doc_id: str) -> None:
     """
-    This function reads the contents of a supported document type (PDF, image, DOCX, or TXT),
-    extracts the raw text, splits it into cleaned chunks, and stores them in a vector index 
-    after removing any existing entries for the same document ID.
+    Preprocesses a single document by:
+    - Extracting text based on file type
+    - Splitting text into non-empty chunks
+    - Removing existing entries from FAISS index
+    - Re-indexing updated content
 
     Parameters:
-    - file_path: Full path to the input document
-    - doc_id: Assigned document ID (e.g., 'DOC001.pdf')
+    - session_id (str): Session ID to isolate user data and results.
+    - file_path (str): Full path to the input document
+    - doc_id (str): Assigned document ID (e.g., 'DOC001.pdf')
 
     """
 
@@ -109,21 +112,22 @@ def preprocess_document(file_path: str, doc_id: str):
     chunks = [p.strip() for p in raw_text.split("\n") if p.strip()]
     logger.info(f"Extracted {len(chunks)} chunk(s) from {doc_id}")
 
-    remove_doc_from_index(doc_id)
-    add_chunks_to_index(doc_id, chunks)
+    remove_doc_from_index(session_id, doc_id)
+    add_chunks_to_index(session_id, doc_id, chunks)
 
 
 
-def preprocess_batch(file_paths: List[str]):
+def preprocess_batch(session_id: str, file_paths: List[str]) -> List[str]:
     """
     Preprocesses a list of document file paths and returns them
     as a list containing doc_ids
 
     Parameters:
-    - file_paths: List of full file paths (PDFs or images)
+    - session_id (str): Session ID to isolate user data and results.
+    - file_paths (List(str)): List of full file paths (PDFs or images)
 
     Returns:
-    - List[str]: List of Document IDs
+    - List[str]: List of processed document IDs
     """
     logger.info(f"Starting batch preprocessing of {len(file_paths)} file(s).")
     processed = []
@@ -131,13 +135,11 @@ def preprocess_batch(file_paths: List[str]):
     for path in (file_paths):
 
         # Generate session-prefixed doc_ids
-        parts = str(path).split(os.sep)
-        session_id = parts[-2]
-        filename = parts[-1]
+        filename = os.path.basename(path)
         doc_id = f"{session_id}:{filename}"
 
         try:
-            preprocess_document(path, doc_id)
+            preprocess_document(session_id, path, doc_id)
             processed.append(doc_id)
         except Exception as e:
             logger.error(f"Failed to process {path}: {e}", exc_info=True)

@@ -14,7 +14,7 @@ This module defines the core logic for extracting answers from documents using a
 
 ## Core Function
 
-### `extract_answers_from_docs(user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]`
+### `extract_answers_from_docs(session_id: str, user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]`
 
 Given a user question and a list of document IDs:
 

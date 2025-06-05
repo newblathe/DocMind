@@ -6,7 +6,6 @@ console.log("Session ID:", sessionId);
 
 // Fetch and populate the document sidebar
 async function refreshSidebar() {
-
   // Pass session_id to backend to scope file operations
   const res = await fetch(`/list?session_id=${sessionId}`);
 
@@ -16,13 +15,29 @@ async function refreshSidebar() {
     return;
   }
 
+
+
   const data = await res.json();
   const sidebar = document.getElementById("doc-sidebar");
+  const selected = {};
+  document.querySelectorAll('.doc-check').forEach(cb => {
+    selected[cb.getAttribute("data-fname")] = cb.checked;
+  });
+
+
   sidebar.innerHTML = "";
+
+
   for (const name of data.documents) {
+    const isChecked = selected[name] ?? true;
     const div = document.createElement("div");
     div.className = "doc-item";
-    div.innerHTML = `${name} <button onclick="deleteDocument('${name}')">&#10060;</button>`;
+    div.innerHTML = `
+    <label>
+      <input type="checkbox" class="doc-check" data-fname="${name}" ${isChecked ? "checked" : ""} />
+      ${name}
+    </label>
+    <button onclick="deleteDocument('${name}')">&#10060;</button>`;
     sidebar.appendChild(div);
   }
 }
@@ -75,7 +90,10 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
   }
 
   // Pass session_id to backend to scope file operations
-  const res = await fetch(`/upload?session_id=${sessionId}`, { method: "POST", body: formData });
+  const res = await fetch(`/upload?session_id=${sessionId}`, {
+    method: "POST",
+    body: formData,
+  });
 
   // Rate Limiting
   if (res.status === 429 || res.redirected) {
@@ -101,6 +119,9 @@ document.getElementById("upload-form").addEventListener("submit", async (e) => {
 document.getElementById("query-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const q = document.getElementById("user-question").value;
+  const selectedFiles = [
+    ...document.querySelectorAll(".doc-check:checked"),
+  ].map((cb) => cb.getAttribute("data-fname"));
   const questionStatus = document.getElementById("question-status");
   const sidebar = document.getElementById("doc-sidebar");
   const analyzeBtn = document.getElementById("analyzeBtn");
@@ -139,6 +160,18 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
     return;
   }
 
+  // Check if documents are selected
+  if (!selectedFiles.length) {
+    questionStatus.style.color = "red";
+    questionStatus.textContent = "⚠️ Please select at least one document.";
+    setTimeout(() => {
+      questionStatus.textContent = "";
+    }, 1000);
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color: #777;">No document selected for analysis</td></tr>`;
+    themesBox.textContent = "No document selected for analysis";
+    return;
+  }
+
   // Disabale the analyze button, once clicked
   analyzeBtn.disabled = true;
   analyzeBtn.textContent = "Analyzing...";
@@ -155,7 +188,7 @@ document.getElementById("query-form").addEventListener("submit", async (e) => {
   const res = await fetch(`/run-pipeline?session_id=${sessionId}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question: q }),
+    body: JSON.stringify({ question: q, selected_files: selectedFiles }),
   });
 
   // Rate Limiting

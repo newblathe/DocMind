@@ -62,16 +62,15 @@ This module defines the core pipeline endpoint in DocMind:
 ## Dependencies
 
 - `UPLOAD_DIR` from `config.py`, base directory for uploaded files; the pipeline scans only the session-specific subfolder `UPLOAD_DIR/{session_id}/` to retrieve files.
-- `is_document_indexed()` from `vector_store.py`, checks FAISS to avoid redundant embedding
-- `preprocess_batch()` from `document_preprocessor.py`, extracts and chunks documents
-- `extract_answers_from_docs()` from `query_engine.py`, calls LLM to generate answers
-- `extract_themes()` from `theme_identifier.py`, summarizes themes from answers
+- `is_document_indexed(session_id, doc_id)` from `vector_store.py`, checks FAISS to avoid redundant embedding
+- `preprocess_batch(session_id, file_paths)` from `document_preprocessor.py`, extracts and chunks documents
+- `extract_answers_from_docs(session_id, user_query, doc_ids)` from `query_engine.py`, calls LLM to generate answers
+- `extract_themes(responses)` from `theme_identifier.py`, summarizes themes from answers
 - `PipelineInput`, `PipelineResponse` from `models.py`
 - `logger` from `logger.py` for structured logging throughout execution
 
 ## Notes
 - This route is protected with a global shared rate limiter. If a user exceeds the request threshold, the user will be redirected to a rate-limit warning page.
-- Prevents concurrent analysis requests from the same client IP.
 - Only documents with extensions: .pdf, .png, .jpg, .jpeg, .txt, .docx are processed.
 - Handles empty document sets and missing questions gracefully.
 - Catches and logs all exceptions with full trace.

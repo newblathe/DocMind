@@ -136,7 +136,7 @@ async def delete_document(request: Request, session_id: str = Query(...), body: 
 
     # Delete the FAISS Index
     doc_id = f"{session_id}:{filename}"
-    remove_doc_from_index(doc_id)
+    remove_doc_from_index(session_id, doc_id)
     
     logger.info(f"Deleted file and removed from index: {filename}")
     return DeleteResponse(deleted=filename)
