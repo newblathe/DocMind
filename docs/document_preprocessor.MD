@@ -27,7 +27,7 @@ This module handles document parsing and text extraction for all supported file 
 
 ## Key Functions
 
-### `preprocess_document(session_id: str, file_path: str, doc_id; str)`
+### `preprocess_document(session_id: str, file_path: str, doc_id: str)`
 - Detects file type and delegates to the correct extractor
 - Splits the extracted text into cleaned chunks (`\n` delimited)
 - Calls `remove_doc_from_index(session_id, doc_id)` and then `add_chunks_to_index(session_id, doc_id, chunks)`, both function are related to `vector_store.py`
