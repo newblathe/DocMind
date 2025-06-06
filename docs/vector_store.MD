@@ -18,9 +18,9 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 ## Key Functions
 
 ### `init_or_load_index(session_id: str)`
-- Loads or creates a FAISS index from vector_store/<session_id>/vector_index.faiss
+- Loads or creates a FAISS index from `backend/data/vector_store/{session_id}/vector_index.faiss`
 
-- Loads or initializes corresponding meta.npy metadata
+- Loads or initializes corresponding metadata from `backend/data/vector_store/{session_id}/meta.npy`
 
 - Ensures vector index and metadata are session-scoped and kept separate per user/session
 
