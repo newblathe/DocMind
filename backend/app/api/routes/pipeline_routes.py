@@ -35,6 +35,7 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
         HTTPException:
             - If no documents exists for the current session.
             - If no questions or documents are provided.
+            - If no documents are selected for analysis
 
     Returns:
         PipelineResponse: Contains answers per document and a thematic summary.
