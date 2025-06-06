@@ -43,21 +43,23 @@ This module defines the core pipeline endpoint in DocMind:
 
 3. If no question → return early with warning
 
-4. For each document:
+4. If no documents selected → return early with warning
+
+5. For each document:
 
     - If not indexed → preprocess and index
 
     - If already indexed → skip preprocessing
 
-5. Embed the question and retrieve top-k relevant chunks
+6. Embed the question and retrieve top-k relevant chunks
 
-6. Call Groq LLM to:
+7. Call Groq LLM to:
 
     - Generate answers from chunks
 
     - Extract themes from those answers
 
-7. Return combined results
+8. Return combined results
 
 ## Dependencies
 
