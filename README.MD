@@ -154,6 +154,9 @@
 
     - Enhances traceability and transparency of AI-generated responses
 
+- **Selective Document Processing**
+    - Users can choose specific uploaded documents to include in analysis
+
 - **Modular & Extensible Backend**
 
     - Clear separation of API routes
