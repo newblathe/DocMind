@@ -16,7 +16,7 @@ This module defines the core logic for extracting answers from documents using a
 
 ### `extract_answers_from_docs(session_id: str, user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]`
 
-Given a user question and a list of document IDs:
+Given the session_id, a user question and a list of document IDs:
 
 1. Retrieves top-k chunks per document using FAISS
 2. Constructs a detailed system prompt including:
