@@ -46,7 +46,7 @@ The LLM is instructed to cite the specific paragraph(s)
 Invalid responses or “no relevant information” are gracefully handled
 
 ## Dependencies
-- `Groq – LLM client` (llama3-70b-8192 used)
+- `Groq – LLM client` (llama-3.3-70b-versatile used)
 
 - `search_top_k_chunks()` from `vector_store.py` – for semantic chunk retrieval
 

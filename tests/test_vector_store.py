@@ -1,38 +1,58 @@
 import sys
 from pathlib import Path
 
-# Add the project root to the Python path so local modules can be imported
+# Ensure the backend modules are importable by adding the project root to sys.path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
-from backend.app.services.vector_store import add_chunks_to_index, remove_doc_from_index, search_top_k_chunks, is_document_indexed
-
-# Step 1: Simulate adding a document
-doc_id = "TESTDOC001"
-chunks = [
-    "Clause 1: This document outlines the financial strategy for 2024.",
-    "Clause 2: The company will focus on cost reduction and hybrid work.",
-    "Clause 3: Compliance with SEBI Clause 49 is required.",
-    "Clause 4: We expect a 15% increase in efficiency through automation."
-]
-
-# Add chunks to FAISS and metadata
-if not is_document_indexed(doc_id):
-    remove_doc_from_index(doc_id)
-    add_chunks_to_index(doc_id, chunks)
-    print("preprocessing")
+import numpy as np
+from backend.app.services.vector_store import add_chunks_to_index, search_top_k_chunks, remove_doc_from_index, is_document_indexed
 
 
+def test_vector_store():
+    """
+    Tests the vector indexing pipeline:
+    1. Adds text chunks to the test session-specific FAISS index
+    2. Verifies if the document is indexed
+    3. Queries top matching chunks
+    4. Removes the document and confirms cleanup
+    """
+    # Use a test-specific session and document ID
+    session_id = "test_vector_store"
+    doc_id = "test_doc"
 
+    # Example chunks to embed and index
+    chunks = [
+        "Machine learning enables systems to improve their performance over time without being explicitly reprogrammed. By leveraging large datasets and statistical techniques, these systems can identify patterns and make decisions with minimal human intervention.",
 
-# Step 2: Query the index
-query = "What is the strategy for 2024?"
-top_results = search_top_k_chunks(doc_id, query, k=3)
+        "Neural networks are computational models inspired by the human brain. They consist of layers of interconnected nodes and are capable of learning complex functions by adjusting the weights of connections through backpropagation and gradient descent.",
 
-# Step 3: Display results
-print("\nTop-k relevant chunks:")
-for i, result in enumerate(top_results):
-    print(f"\nRank {i+1}:")
-    print(f"Chunk Index: {result['chunk_index']}")
-    print(f"Text: {result['text']}")
+        "Natural language processing allows machines to interpret and generate human language. It powers applications like language translation, voice assistants, and intelligent text summarization tools that are widely used in everyday applications.",
 
-remove_doc_from_index(doc_id)
+        "The history of classical music includes composers like Bach, Beethoven, and Mozart, who each contributed to different stylistic periods. Their compositions continue to influence modern orchestral works and are frequently performed around the world.",
+
+        "Urban gardening has grown in popularity as people seek to grow vegetables and herbs in small spaces. Techniques such as vertical planting and hydroponics make it possible to maintain gardens even in densely populated areas."
+    ]
+
+    # Step 1: Add chunks to the index
+    add_chunks_to_index(session_id, doc_id, chunks)
+
+    # Step 2: Confirm that the document was indexed
+    assert is_document_indexed(session_id, doc_id), f"Document {doc_id} was not found in the session index after insertion."
+
+    # Step 3: Run a semantic search query on the document
+    query = "What is machine learning?"
+    results = search_top_k_chunks(session_id, doc_id, query, k=2)
+
+    print("\nRetrieved Chunks:")
+    for idx, r in enumerate(results):
+        print(f"{idx+1} Chunk Text: {r['text']}\n")
+
+    # Ensure relevant chunks are returned
+    assert len(results) == 2, f"Expected 2 top results from search, but got {len(results)}."
+    assert any("machine learning" in r["text"].lower() for r in results), "Search results do not contain any chunk related to 'machine learning'. Semantic relevance may be broken."
+
+    # Step 4: Remove document from the index
+    remove_doc_from_index(session_id, doc_id)
+
+    # Verify that the document is no longer indexed
+    assert not is_document_indexed(session_id, doc_id), f"Document {doc_id} should have been removed from the FAISS index, but it's still present."

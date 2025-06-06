@@ -1,9 +1,8 @@
 import faiss
-import pathlib
+from pathlib import Path
 import numpy as np
 from typing import List, Dict
 from sentence_transformers import SentenceTransformer
-import os
 from collections import defaultdict
 import hashlib
 
@@ -14,7 +13,7 @@ model = SentenceTransformer("all-MiniLM-L6-v2")
 embedding_dim = 384
 
 # Path Setup
-def _session_dir(session_id: str) -> pathlib.Path:
+def _session_dir(session_id: str) -> Path:
     """
     Returns the path to the session-specific directory, creating it if needed.
 
@@ -28,13 +27,13 @@ def _session_dir(session_id: str) -> pathlib.Path:
     path.mkdir(parents=True, exist_ok=True)
     return path
 
-def _index_path(session_id: str) -> pathlib.Path:
+def _index_path(session_id: str) -> Path:
     """
     Constructs the path to the FAISS index file for a given session.
     """
     return _session_dir(session_id) / "vector_index.faiss"
 
-def _meta_path(session_id: str) -> pathlib.Path:
+def _meta_path(session_id: str) -> Path:
     """
     Constructs the path to the metadata file for a given session.
     """

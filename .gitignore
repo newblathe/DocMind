@@ -13,3 +13,7 @@ __pycache__/
 
 # Vector DB artifacts
 /backend/data/vector_store/
+
+
+# Tests backend
+/tests/backend

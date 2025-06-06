@@ -4,7 +4,7 @@ from PIL import Image
 import pytesseract
 from docx import Document
 import shutil
-from typing import List, Dict
+from typing import List
 
 from backend.app.services.vector_store import add_chunks_to_index, remove_doc_from_index
 from backend.app.core.logger import logger

@@ -8,7 +8,7 @@ This module extracts high-level themes from multiple document-specific answers u
 
 - Take in all per-document answers
 - Construct a well-engineered prompt with guidance and formatting rules
-- Call the **Groq LLM** (`llama3-70b-8192`) to:
+- Call the **Groq LLM** (`llama-3.3-70b-versatile`) to:
   - Identify recurring themes
   - Include all relevant documents per theme
   - Format results clearly and consistently

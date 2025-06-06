@@ -1,7 +1,6 @@
 from typing import List, Dict
 
 from groq import Groq
-from pathlib import Path
 import json
 import re
 from tabulate import tabulate
@@ -92,7 +91,7 @@ Do not return markdown, backticks, or multi-line output.
         try:
             # Send the prompt to the Groq LLM for response
             response = client.chat.completions.create(
-                model="llama3-70b-8192",
+                model="llama-3.3-70b-versatile",
                 messages=[{"role": "user", "content": prompt}]
             )
 
@@ -124,7 +123,7 @@ Do not return markdown, backticks, or multi-line output.
                 logger.info(f"Answer extracted for {doc_id}: {citation}")
             else:
                 results.append({
-                    "doc_id": doc_id,
+                    "doc_id": doc_id.split(":", 1)[1],
                     "answer": f"No relevant answer found",
                     "citation" : "Unkonown"
 
