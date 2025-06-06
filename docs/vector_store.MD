@@ -60,7 +60,7 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 ---
 
 ### `is_document_indexed(session_id: str, doc_id: str) -> bool`
-- Checks whether the document has been previously embedded
+- Checks whether the document has been previously embedded in the current session
 - Avoids redundant reprocessing in the pipeline
 
 ---
