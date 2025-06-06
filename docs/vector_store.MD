@@ -24,6 +24,8 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 
 - Ensures vector index and metadata are session-scoped and kept separate per user/session
 
+---
+
 ### `save_index(session_id: str, index, metadata)`
 - Serializes and writes the FAISS index to disk in the session's directory
 
@@ -31,7 +33,7 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 
 - Guarantees session-level persistence without affecting other users or sessions
 
-
+---
 
 ### `add_chunks_to_index(session_id: str, doc_id: str, chunks: List[str])`
 - Embeds each chunk using a sentence transformer
