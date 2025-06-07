@@ -9,8 +9,8 @@ load_dotenv()
 UPLOAD_DIR = Path("backend/data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-INDEX_PATH = Path("backend/data/vector_store")
-INDEX_PATH.mkdir(parents=True, exist_ok=True)
+META_PATH = Path("backend/data/meta_store")
+META_PATH.mkdir(parents=True, exist_ok=True)
 
 
 # Environment Variables

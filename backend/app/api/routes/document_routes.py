@@ -9,7 +9,7 @@ from backend.app.core.limiter import limiter
 
 from backend.app.core.config import UPLOAD_DIR
 from backend.app.models.models import DocumentUploadResponse, DocumentListResponse, DeleteResponse
-from backend.app.services.vector_store import remove_doc_from_index
+from backend.app.services.meta_store import remove_from_metadata
 from backend.app.core.logger import logger
 
 router = APIRouter()
@@ -135,8 +135,8 @@ async def delete_document(request: Request, session_id: str = Query(...), body: 
     file_path.unlink()
 
     # Delete the FAISS Index
-    doc_id = f"{session_id}:{filename}"
-    remove_doc_from_index(session_id, doc_id)
+    doc_id = filename
+    remove_from_metadata(session_id, doc_id)
     
     logger.info(f"Deleted file and removed from index: {filename}")
     return DeleteResponse(deleted=filename)

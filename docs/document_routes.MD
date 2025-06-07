@@ -33,14 +33,14 @@ Returns a list of all documents uploaded **within the current session**.
 Deletes a document from the current session and removes its associated FAISS vector entries.
 
 - Verifies existence within the current `UPLOAD_DIR/{session_id}/` folder
-- Calls `remove_doc_from_index(session_id, doc_id)` to maintain vector store integrity
+- Calls `remove_from_metadata(session_id, doc_id)` to maintain vector store integrity
 
 ---
 
 ## Dependencies
 
 - `UPLOAD_DIR` from `config.py`: base directory for storing uploaded documents; session-specific subdirectories `UPLOAD_DIR/{session_id}` are dynamically created in the route logic
-- `remove_doc_from_index(session_id, doc_id)` from `vector_store.py`: used during deletion
+- `remove_from_metadata(session_id, doc_id)` from `meta_store.py`: used during deletion
 - `DocumentUploadResponse`, `DocumentListResponse`, `DeleteResponse` from `models.py`
 - Uses `FastAPI`’s `APIRouter` for endpoint registration
 - `logger` from `logger.py` for structured logging throughout execution

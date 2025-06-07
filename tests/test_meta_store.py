@@ -5,13 +5,13 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
-from backend.app.services.vector_store import add_chunks_to_index, search_top_k_chunks, remove_doc_from_index, is_document_indexed
+from backend.app.services.meta_store import add_to_metadata, search_top_k_chunks, remove_from_metadata, is_document_indexed
 
 
-def test_vector_store():
+def test_meta_store():
     """
     Tests the vector indexing pipeline:
-    1. Adds text chunks to the test session-specific FAISS index
+    1. Adds text chunks to the test session-specific metadata
     2. Verifies if the document is indexed
     3. Queries top matching chunks
     4. Removes the document and confirms cleanup
@@ -34,10 +34,10 @@ def test_vector_store():
     ]
 
     # Step 1: Add chunks to the index
-    add_chunks_to_index(session_id, doc_id, chunks)
+    add_to_metadata(session_id, doc_id, chunks)
 
     # Step 2: Confirm that the document was indexed
-    assert is_document_indexed(session_id, doc_id), f"Document {doc_id} was not found in the session index after insertion."
+    assert is_document_indexed(session_id, doc_id), f"Document {doc_id} was not found in the session metadata after insertion."
 
     # Step 3: Run a semantic search query on the document
     query = "What is machine learning?"
@@ -52,7 +52,7 @@ def test_vector_store():
     assert any("machine learning" in r["text"].lower() for r in results), "Search results do not contain any chunk related to 'machine learning'. Semantic relevance may be broken."
 
     # Step 4: Remove document from the index
-    remove_doc_from_index(session_id, doc_id)
+    remove_from_metadata(session_id, doc_id)
 
     # Verify that the document is no longer indexed
-    assert not is_document_indexed(session_id, doc_id), f"Document {doc_id} should have been removed from the FAISS index, but it's still present."
+    assert not is_document_indexed(session_id, doc_id), f"Document {doc_id} should have been removed from the metadata, but it's still present."

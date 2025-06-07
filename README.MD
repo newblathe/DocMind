@@ -52,12 +52,13 @@
              └─────────────┬──────────────┬───────────────┘              │
                            │              │                              │
                        Yes ▼           No ▼                              │
-       ┌────────────────────────┐  ┌────────────────────────────┐        │
-       │ Skip preprocessing and │  │ Preprocess document:       │        │
-       │ embedding (already in  │  │  - OCR/text extraction     │        │
-       │ vector store)          │  │  - Chunking + Embedding    │        │
-       └────────────┬───────────┘  │  - Store in FAISS index    │        │
-                    │              └─────────────┬──────────────┘        │
+       ┌────────────────────────┐  ┌──────────────────────────────┐      │
+       │ Skip preprocessing and │  │ Preprocess document:         │      │
+       │ embedding (already in  │  │  - OCR/text extraction       │      │
+       │ vector store)          │  │  - Chunking + Embedding      │      │
+       └────────────┬───────────┘  │  - Store chunk and embeddings│      │
+                    │              │    in metadata               │      │
+                    │              └─────────────┬────────────────┘      │
                     │                            │                       │
                     │                            │                       │
                     ▼                            ▼                       │
@@ -97,7 +98,7 @@
                                   ▼                                      │
                         ┌───────────────────┐                            │
                         │ Remove file and   │                            │
-                        │ its FAISS chunks  │────────────────────────────┘
+                        │ its metadata      │────────────────────────────┘
                         └───────────────────┘
    
 ---
@@ -108,7 +109,7 @@
 | `document_routes.py` | **Backend route** for uploading, listing, and deleting documents from storage| [View Docs](docs/document_routes.MD) |
 | `pipeline_routes.py` | **Backend route** that triggers the full QA + theme extraction pipeline| [View Docs](docs/pipeline_routes.MD) |
 | `document_preprocessor.py` | Extracts text from PDFs, images, DOCX, and TXT|[View Docs](docs/document_preprocessor.MD) |
-| `vector_store.py` | Manages session-based FAISS indexes and per-document chunk-level retrieval|[View Docs](docs/vector_store.MD) |
+| `meta_store.py` | Manages per-document chunk metadata and embeddings per session and enables temporary FAISS-based semantic search at query time|[View Docs](docs/meta_store.MD) |
 | `query_engine.py` | Uses Groq LLM to extract detailed answers and citations per document|[View Docs](docs/query_engine.MD) |
 | `theme_identifier.py` | Clusters answers into themes using Groq LLM|[View Docs](docs/theme_identifier.MD) |
 | `models.py` | Defines Pydantic models for API requests and responses|[View Docs](docs/models.MD) |
@@ -137,9 +138,9 @@
 
     - Embeds document chunks with sentence-transformers
 
-    - Stores and searches chunks using FAISS for semantic retrieval
+    - Stores chunks and embeddings as metadata for each document, and constructs a temporary FAISS index at query time for semantic retrieval.
 
-    - Prevents duplicate processing via indexed document tracking
+    - Prevents duplicate processing by checking if the document ID already exists in the session-specific metadata. 
 
 
 - **LLM-Powered QA and Insights**
@@ -267,7 +268,7 @@ Visit http://localhost:8000/
 │ │ │ ├── document_preprocessor.py # OCR and document parsing
 │ │ │ ├── query_engine.py # Groq-based per document answer generation
 │ │ │ ├── theme_identifier.py # Extracts themes from answers
-│ │ │ └── vector_store.py # FAISS vector store operations
+│ │ │ └── meta_store.py # Manages metadata storage and temporary FAISS search
 │ ├── data/
 │   ├── uploads/{session_id}/ # Uploaded files stored per user session
 │   └── vector_store/{session_id} # FAISS index and metadata
@@ -301,7 +302,7 @@ Visit http://localhost:8000/
 
 ### Semantic Search (RAG)
 - **sentence-transformers** – Embeds document chunks into dense vectors
-- **FAISS** – Efficient vector similarity search for top-k chunk retrieval
+- **FAISS** – Temporary in-memory FAISS indexes are created at query time to support fast semantic retrieval using per-document metadata.
 - **RAG Architecture** – Retrieval-Augmented Generation: retrieve relevant content, generate answers
 
 ### LLM Integration

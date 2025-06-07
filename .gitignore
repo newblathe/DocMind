@@ -4,6 +4,9 @@ __pycache__/
 *.pyo
 *.pyd
 
+# Pytest cache files
+.pytest_cache
+
 # Environment variables
 .env
 
@@ -12,7 +15,7 @@ __pycache__/
 /backend/data/uploads/
 
 # Vector DB artifacts
-/backend/data/vector_store/
+/backend/data/meta_store/
 
 
 # Tests backend

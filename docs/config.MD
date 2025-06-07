@@ -20,7 +20,7 @@ This module handles all static path configuration and environment variable loadi
 | Constant       | Description                            |
 |----------------|----------------------------------------|
 | `UPLOAD_DIR`   | Folder path for uploaded documents      |
-| `INDEX_PATH`   | Folder path for vector store             |
+| `META_PATH`   | Folder path for meta store             |
 
 ---
 

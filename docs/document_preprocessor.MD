@@ -30,7 +30,7 @@ This module handles document parsing and text extraction for all supported file 
 ### `preprocess_document(session_id: str, file_path: str, doc_id: str)`
 - Detects file type and delegates to the correct extractor
 - Splits the extracted text into cleaned chunks (`\n` delimited)
-- Calls `remove_doc_from_index(session_id, doc_id)` and then `add_chunks_to_index(session_id, doc_id, chunks)`, both function are related to `vector_store.py`
+- Calls `remove_from_metadata(session_id, doc_id)` and then `add_to_metadata(session_id, doc_id, chunks)`, both function are related to `meta_store.py`
 
 ### `preprocess_batch(session_id: str, file_paths: List[str])`
 - Processes multiple files in sequence
@@ -51,24 +51,19 @@ This module handles document parsing and text extraction for all supported file 
 ## 🔗 Dependencies
 
 - `PyMuPDF`, `pytesseract`, `Pillow`, `docx`, `shutil`, `os`, `typing`
-- `add_chunks_to_index()` and `remove_doc_from_index()` from `vector_store.py`
+- `add_to_metadata(session_id, doc_id, chunks)` and `remove_from_metadata(session_id, doc_id)` from `meta_store.py`
 - `logger` from `core/logger.py` for structured logs
 
 ---
 
 ## Notes
 
-- Document ID (`doc_id`) is in the format `session_id:filename`:
-  - `session_id` is the unique identifier for the user's current session, which is stored in the browser's `localStorage`
-  - `filename` is the original name of the uploaded file (including its extension)
-  - This format ensures that:
-      - Each document is uniquely identifiable even if users upload files with the same name
-      - It prevents collisions across sessions in both storage and vector index references
+- Document ID (`doc_id`) is derived from the uploaded file's name (including extension)
 
 ---
 
 ## Related Modules
-`vector_store.py` – adds/removes embeddings based on chunked text
+`meta_store.py` – adds/removes chunks and embedding for the specified document in the metadata
 
-`pipeline_routes.py` – calls `preprocess_batch()` during analysis
+`pipeline_routes.py` – calls `preprocess_batch(session_id, file_paths)` during analysis
 

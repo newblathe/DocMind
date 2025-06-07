@@ -6,7 +6,7 @@ from docx import Document
 import shutil
 from typing import List
 
-from backend.app.services.vector_store import add_chunks_to_index, remove_doc_from_index
+from backend.app.services.meta_store import add_to_metadata, remove_from_metadata
 from backend.app.core.logger import logger
 
 # Auto-detect the Tesseract binary from the system PATH
@@ -112,8 +112,9 @@ def preprocess_document(session_id: str, file_path: str, doc_id: str) -> None:
     chunks = [p.strip() for p in raw_text.split("\n") if p.strip()]
     logger.info(f"Extracted {len(chunks)} chunk(s) from {doc_id}")
 
-    remove_doc_from_index(session_id, doc_id)
-    add_chunks_to_index(session_id, doc_id, chunks)
+    
+    remove_from_metadata(session_id, doc_id)
+    add_to_metadata(session_id, doc_id, chunks)
 
 
 
@@ -136,7 +137,7 @@ def preprocess_batch(session_id: str, file_paths: List[str]) -> List[str]:
 
         # Generate session-prefixed doc_ids
         filename = os.path.basename(path)
-        doc_id = f"{session_id}:{filename}"
+        doc_id = filename
 
         try:
             preprocess_document(session_id, path, doc_id)

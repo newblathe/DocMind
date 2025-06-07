@@ -5,7 +5,7 @@ import json
 import re
 from tabulate import tabulate
 
-from backend.app.services.vector_store import search_top_k_chunks
+from backend.app.services.meta_store import search_top_k_chunks
 from backend.app.core.logger import logger
 
 from backend.app.core.config import GROQ_API_KEY
@@ -15,6 +15,7 @@ from backend.app.core.config import GROQ_API_KEY
 # Initialize Groq client using the API key
 client = Groq(api_key=GROQ_API_KEY)
 
+# Extract answers and their citations from documents based on a user query
 def extract_answers_from_docs(session_id: str, user_query: str, doc_ids: List[str]) -> List[Dict[str, str]]:
     """
     Extracts relevant answers and citations from a set of documents based on a user query using Groq's LLM.
@@ -116,14 +117,14 @@ Do not return markdown, backticks, or multi-line output.
             # Add result only if a meaningful answer is found
             if answer.lower() != "no relevant information found":
                 results.append({
-                    "doc_id": doc_id.split(":", 1)[1],  # Strip session_id prefix before appending doc_id in results
+                    "doc_id": doc_id,  # Strip session_id prefix before appending doc_id in results
                     "answer": answer,
                     "citation": citation
                 })
                 logger.info(f"Answer extracted for {doc_id}: {citation}")
             else:
                 results.append({
-                    "doc_id": doc_id.split(":", 1)[1],
+                    "doc_id": doc_id,
                     "answer": f"No relevant answer found",
                     "citation" : "Unkonown"
 

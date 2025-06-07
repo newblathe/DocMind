@@ -64,7 +64,7 @@ This module defines the core pipeline endpoint in DocMind:
 ## Dependencies
 
 - `UPLOAD_DIR` from `config.py`, base directory for uploaded files; the pipeline scans only the session-specific subfolder `UPLOAD_DIR/{session_id}/` to retrieve files.
-- `is_document_indexed(session_id, doc_id)` from `vector_store.py`, checks FAISS to avoid redundant embedding
+- `is_document_indexed(session_id, doc_id)` from `meta_store.py`, checks metadata to avoid redundant embedding
 - `preprocess_batch(session_id, file_paths)` from `document_preprocessor.py`, extracts and chunks documents
 - `extract_answers_from_docs(session_id, user_query, doc_ids)` from `query_engine.py`, calls LLM to generate answers
 - `extract_themes(responses)` from `theme_identifier.py`, summarizes themes from answers

@@ -6,7 +6,7 @@ from backend.app.core.config import UPLOAD_DIR
 from backend.app.services.document_preprocessor import preprocess_batch
 from backend.app.services.query_engine import extract_answers_from_docs
 from backend.app.services.theme_identifier import extract_themes
-from backend.app.services.vector_store import is_document_indexed
+from backend.app.services.meta_store import is_document_indexed
 from backend.app.models.models import PipelineResponse, PipelineInput
 from backend.app.core.logger import logger
 
@@ -78,7 +78,7 @@ async def run_pipeline(request: Request, *, session_id: str = Query(...), payloa
             filename = os.path.basename(path)
 
             # Generate session-prefixed doc_ids
-            doc_id = f"{session_id}:{filename}"
+            doc_id = filename
             doc_ids.append(doc_id)
 
             if not is_document_indexed(session_id, doc_id):
