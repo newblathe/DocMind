@@ -177,7 +177,7 @@
 
     - Uploaded files are stored in per-session directories for logical separation
 
-    - Each session maintains its own FAISS index and metadata
+    - Each session maintains its own metadata
 
 
 ---
