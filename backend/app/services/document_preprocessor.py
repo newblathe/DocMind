@@ -17,6 +17,8 @@ if _tess_path:
 else:
     print("Tesseract not found. Please install it and add to system PATH.")
 
+
+# Handle text extraction for PDFs
 def extract_text_from_pdf(file_path: str) -> str:
     """
     Extracts text content from a PDF file using PyMuPDF.
@@ -38,6 +40,7 @@ def extract_text_from_pdf(file_path: str) -> str:
     return "\n".join(blocks)
 
 
+# Handle text extraction for Images
 def extract_text_from_image(file_path: str) -> str:
     """
     Uses Tesseract OCR to extract text from image files (.png, .jpg, .jpeg).
@@ -52,6 +55,8 @@ def extract_text_from_image(file_path: str) -> str:
     extracted_text = pytesseract.image_to_string(image, lang="eng", config= "--psm 6") 
     return extracted_text.replace("\n", " ").replace("  ", "\n")
 
+
+# Handle text extraction for DOCXs
 def extract_text_from_docx(file_path: str) -> str:
     """
     Extracts text content from a Microsoft Word (.docx) document.
@@ -65,6 +70,8 @@ def extract_text_from_docx(file_path: str) -> str:
     doc = Document(file_path)
     return "\n".join(para.text for para in doc.paragraphs if para.text.strip())
 
+
+# Handle text extraction for TXTs
 def extract_text_from_txt(file_path: str) -> str:
     """
     Reads and returns text from a plain text (.txt) file.
@@ -78,6 +85,9 @@ def extract_text_from_txt(file_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
         return f.read()
 
+
+
+# Handle text extraction, chunking and embedding for a document in the current session
 def preprocess_document(session_id: str, file_path: str, doc_id: str) -> None:
     """
     Preprocesses a single document by:
@@ -118,6 +128,7 @@ def preprocess_document(session_id: str, file_path: str, doc_id: str) -> None:
 
 
 
+# Handle text extraction, chunking and embedding for all the documents in the current session and return the doc_ids for the documents
 def preprocess_batch(session_id: str, file_paths: List[str]) -> List[str]:
     """
     Preprocesses a list of document file paths and returns them
