@@ -9,9 +9,6 @@ load_dotenv()
 UPLOAD_DIR = Path("backend/data/uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-META_PATH = Path("backend/data/meta_store")
-META_PATH.mkdir(parents=True, exist_ok=True)
-
 
 # Environment Variables
 def get_env_variable(key: str) -> str:
@@ -21,3 +18,4 @@ def get_env_variable(key: str) -> str:
     return value
 
 GROQ_API_KEY = get_env_variable("GROQ_API_KEY")
+MONGO_URL = get_env_variable("MONGO_URL")

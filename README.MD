@@ -48,7 +48,7 @@
                                ▼                                         │
              ┌────────────────────────────────────────────┐              │ 
              │ For each uploaded document:                │              │
-             │ Check if already indexed in FAISS          │              │
+             │ Check if metadata exists in MongoDB        │              │
              └─────────────┬──────────────┬───────────────┘              │
                            │              │                              │
                        Yes ▼           No ▼                              │
@@ -109,7 +109,7 @@
 | `document_routes.py` | **Backend route** for uploading, listing, and deleting documents from storage| [View Docs](docs/document_routes.MD) |
 | `pipeline_routes.py` | **Backend route** that triggers the full QA + theme extraction pipeline| [View Docs](docs/pipeline_routes.MD) |
 | `document_preprocessor.py` | Extracts text from PDFs, images, DOCX, and TXT|[View Docs](docs/document_preprocessor.MD) |
-| `meta_store.py` | Manages per-document chunk metadata and embeddings per session and enables temporary FAISS-based semantic search at query time|[View Docs](docs/meta_store.MD) |
+| `meta_store.py` | Manages per-document metadata in MongoDB, including chunk texts and vector embeddings. Enables FAISS-based top-k semantic search using this data.|[View Docs](docs/meta_store.MD) |
 | `query_engine.py` | Uses Groq LLM to extract detailed answers and citations per document|[View Docs](docs/query_engine.MD) |
 | `theme_identifier.py` | Clusters answers into themes using Groq LLM|[View Docs](docs/theme_identifier.MD) |
 | `models.py` | Defines Pydantic models for API requests and responses|[View Docs](docs/models.MD) |
@@ -138,9 +138,9 @@
 
     - Embeds document chunks with sentence-transformers
 
-    - Stores chunks and embeddings as metadata for each document, and constructs a temporary FAISS index at query time for semantic retrieval.
+    - Stores document chunks and embeddings as structured metadata in MongoDB, and constructs a temporary FAISS index at query time for semantic retrieval.
 
-    - Prevents duplicate processing by checking if the document ID already exists in the session-specific metadata. 
+    - Prevents redundant processing by checking if the document is already indexed in the MongoDB metadata. 
 
 
 - **LLM-Powered QA and Insights**
@@ -187,6 +187,7 @@
 Access the app at:  
 [https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/) 
 > **Best viewed on desktop**
+> **Metadata stored in a managed MongoDB instance hosted on [Railway](https://railway.app/)**
 
 Upload your documents, ask a question, and view:
 - Per Document answers
@@ -207,7 +208,9 @@ git clone https://github.com/newblathe/DocMind.git
 
 #### 2. Create a .env file
 
-Set `GROQ_API_KEY=your_groq_key_here` in your `.env` file.
+Set the following in your `.env` file.
+- `GROQ_API_KEY=your_groq_key_here`
+- `MONGO_URL=your_public_mongo_connection_string`
 
 #### 3. Build and run the Docker container
 
@@ -270,8 +273,8 @@ Visit http://localhost:8000/
 │ │ │ ├── theme_identifier.py # Extracts themes from answers
 │ │ │ └── meta_store.py # Manages metadata storage and temporary FAISS search
 │ ├── data/
-│   ├── uploads/{session_id}/ # Uploaded files stored per user session
-│   └── vector_store/{session_id} # FAISS index and metadata
+│   └── uploads/{session_id}/ # Uploaded files stored per user session
+│
 │
 ├── demo/
 │ ├── index.html # Frontend UI (HTML)
@@ -312,6 +315,8 @@ Visit http://localhost:8000/
 - **Docker** – Containerization for consistent deployment
 
 ### Backend
+- **MongoDB** – Stores per-session, per-document chunk metadata and embeddings
+- **pymongo** – MongoDB client for metadata operations
 - **FastAPI** – Web framework for building APIs
 - **Pydantic** – Data validation and schema modeling
 - **Uvicorn** – ASGI server for running FastAPI

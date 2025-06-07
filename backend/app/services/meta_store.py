@@ -1,113 +1,84 @@
+from pymongo import MongoClient
 import faiss
-from pathlib import Path
 import numpy as np
 from typing import List, Dict, Union
 from sentence_transformers import SentenceTransformer
 
-from backend.app.core.config import META_PATH
+from backend.app.core.config import MONGO_URL
 
-# # Load the embedding model used to convert text into vector representations
+# MongoDB connection
+client = MongoClient(MONGO_URL)
+db = client["docmind_metadata"]
+collection = db["sessions"]
+
+# Load the embedding model used to convert text into vector representations
 model = SentenceTransformer("all-MiniLM-L6-v2")
 embedding_dim = 384
 
-# Path Setup
-def _session_dir(session_id: str) -> Path:
+# Utility to safely store document IDs in MongoDB keys
+def normalize_doc_id(doc_id: str) -> str:
     """
-    Returns the path to the session-specific directory, creating it if needed.
+    Normalizes a document ID by replacing the last '.' with an underscore,
+    avoiding MongoDB's nested key interpretation issues.
 
     Parameters:
-        session_id (str): Session ID to isolate user data and results.
-
+        doc_id (str): The original document id
+    
     Returns:
-        Path object for the session directory.
+        str: Normalized document id
     """
-    path = META_PATH / session_id
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-def _meta_path(session_id: str) -> Path:
-    """
-    Constructs the path to the metadata file for a given session.
-    """
-    return _session_dir(session_id) / "meta.npy"
-
-
-# Load existing metadata for a session or initializes a new empty dictionary
-def init_or_load_metadata(session_id: str) -> Dict[str, Dict[str, List]]:
-    """
-    Initializes or loads metadata for a given session.
-
-    Parameters:
-        session_id (str): Session ID to isolate user data and results.
-
-    Returns:
-        A dictionary containng the metada for each session specific document
-    """
-    meta_file = _meta_path(session_id)
-    if meta_file.exists():
-        return np.load(str(meta_file), allow_pickle=True).item()
-    return {}
-
-
-
-# Persist metadata to disk for the current session
-def save_metadata(session_id: str, metadata: Dict[str, Dict[str, List]]) -> None:
-    """
-    Saves the FAISS index and metadata to disk for the specified session.
-
-    Parameters:
-        session_id (str): Session ID to isolate user data and results.
-        index: FAISS index object.
-        metadata: List of metadata dictionaries.
-    """
-    # Persist the updated metadata to disk
-    np.save(str(_meta_path(session_id)), metadata)
+    return doc_id.replace(".", "_")
 
 
 # Add text chunks and their embeddings to the session-specific metadata
 def add_to_metadata(session_id: str, doc_id: str, chunks: List[str]) -> None:
     """
-    Add document chunks and their embeddings to session metadata.
+    Stores text chunks and their vector embeddings into MongoDB
+    under the corresponding session and document ID.
 
     Parameters:
         session_id (str): Session ID to isolate user data and results.
         doc_id: Unique ID of the document.
         chunks: List of text chunks extracted from the document.
     """
-    metadata = init_or_load_metadata(session_id)
     
     # Generate vector embeddings for the chunks
-    embeddings = model.encode(chunks).astype("float32")
+    embeddings = model.encode(chunks).astype("float32").tolist()
 
-    # Save both chunks and embeddings under the document's ID
-    metadata[doc_id] = {
-        "chunks": chunks,
-        "embeddings": embeddings
-    }
-
-    save_metadata(session_id, metadata)
-    metadata = init_or_load_metadata(session_id)
-    print(metadata.keys())
+    
+    
+    
+    # Update or insert the document inside the session's "documents"
+    normalized_doc_id = normalize_doc_id(doc_id)
+    collection.update_one(
+        {"session_id": session_id},
+        {
+            "$set": {
+                f"documents.{normalized_doc_id}": {
+                    "chunks": chunks,
+                    "embeddings": embeddings
+                }
+            }
+        },
+        upsert=True
+    )
 
 
 # Delete all metadata associated with a specific document in a session
 def remove_from_metadata(session_id: str, doc_id: str) -> None:
     """
-    Remove document chunks and thier embeddings from the session metadata
+    Deletes a document’s chunks and embeddings from the metadata store.
 
     Parameters:
     - session_id (str): Session ID to isolate user data and results.
     - doc_id (str): ID of the document to remove.
     """
-    metadata = init_or_load_metadata(session_id)
+    normalized_doc_id = normalize_doc_id(doc_id)
     
-
-    if doc_id in metadata:
-        # Delete entry for the document
-        del metadata[doc_id]
-        save_metadata(session_id, metadata)
-    metadata = init_or_load_metadata(session_id)
-    print(metadata.keys())
+    collection.update_one(
+        {"session_id": session_id},
+        {"$unset": {f"documents.{normalized_doc_id}": ""}}
+    )
 
 # Searche the most relevant chunks in a document using semantic similarity
 def search_top_k_chunks(session_id: str, doc_id: str, query: str, k: int = 3) -> List[Dict[str, Union[str, int]]]:
@@ -123,33 +94,30 @@ def search_top_k_chunks(session_id: str, doc_id: str, query: str, k: int = 3) ->
     Returns:
     - List of dictionaries with chunk_index and text of the matching chunks
     """
-    metadata = init_or_load_metadata(session_id)
+    normalized_doc_id = normalize_doc_id(doc_id)
     
-    # Prepare data for temporary FAISS search
-    chunks = metadata[doc_id]["chunks"]
-    embeddings = np.array(metadata[doc_id]["embeddings"]).astype("float32")
+    doc = collection.find_one({"session_id": session_id})
+    if not doc or normalized_doc_id not in doc.get("documents", {}):
+        return []
 
-    # Encode the query
+    doc_data = doc["documents"][normalized_doc_id]
+    chunks = doc_data["chunks"]
+    embeddings = np.array(doc_data["embeddings"]).astype("float32")
+
     query_vec = model.encode([query]).astype("float32")
+    index = faiss.IndexFlatL2(embeddings.shape[1])
+    index.add(embeddings)
+    _, I = index.search(query_vec, k)
 
-    # Perform temporary in-memory FAISS search
-    temp_index = faiss.IndexFlatL2(embedding_dim)
-    temp_index.add(embeddings)
-    _, I = temp_index.search(query_vec, k)
-
-    # Return the top matching chunks with their indices
     return [
-        {
-            "chunk_index": int(i),
-            "text": chunks[i]
-        }
+        {"chunk_index": int(i), "text": chunks[i]}
         for i in I[0] if i < len(chunks)
     ]
 
 # Check whether a specific document has been stored in the metadata for the given session
 def is_document_indexed(session_id:str, doc_id: str) -> bool:
     """
-    Checks whether a document'chunks and embeddings are already in the metadata.
+    Checks whether the document is already stored in the MongoDB metadata.
 
     This prevents redundant reprocessing by verifying if the documents chunks are already stored and searchable.
 
@@ -160,5 +128,8 @@ def is_document_indexed(session_id:str, doc_id: str) -> bool:
     Returns:
         bool: True if document is already in the metadata , False otherwise
     """
-    metadata = init_or_load_metadata(session_id)
-    return doc_id in metadata
+    normalized_doc_id = normalize_doc_id(doc_id)
+
+    return collection.find_one(
+        {"session_id": session_id, f"documents.{normalized_doc_id}": {"$exists": True}}
+    ) is not None

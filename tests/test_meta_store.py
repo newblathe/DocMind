@@ -33,7 +33,7 @@ def test_meta_store():
         "Urban gardening has grown in popularity as people seek to grow vegetables and herbs in small spaces. Techniques such as vertical planting and hydroponics make it possible to maintain gardens even in densely populated areas."
     ]
 
-    # Step 1: Add chunks to the index
+    # Step 1: Add chunks to the metadata
     add_to_metadata(session_id, doc_id, chunks)
 
     # Step 2: Confirm that the document was indexed
@@ -51,7 +51,7 @@ def test_meta_store():
     assert len(results) == 2, f"Expected 2 top results from search, but got {len(results)}."
     assert any("machine learning" in r["text"].lower() for r in results), "Search results do not contain any chunk related to 'machine learning'. Semantic relevance may be broken."
 
-    # Step 4: Remove document from the index
+    # Step 4: Remove document from the metadata
     remove_from_metadata(session_id, doc_id)
 
     # Verify that the document is no longer indexed

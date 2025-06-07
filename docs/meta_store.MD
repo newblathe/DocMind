@@ -1,49 +1,43 @@
 # `meta_store.py`
 
-This module manages the core **FAISS-based vector search engine** for DocMind. It handles embedding, indexing, searching, and cleanup of chunked document data.
+This module manages the MongoDB-powered metadata store for DocMind. It handles document chunk storage, embedding, semantic search with FAISS, and metadata manipulation on a per-session basis.
 
 ---
 
 ## Responsibilities
 
-- Encode and store chunk embeddings using `sentence-transformers`
-- Store chunk texts and embeddings in structured per-document metadata
-- Support document addition, deletion, and re-checking
-- Perform top-k semantic chunk retrieval using a temporary FAISS index
-- Persist metadata in session-scoped directories
+- Embed document chunks using `SentenceTransformer`
+
+- Store chunk data and vector embeddings in MongoDB, structured under session and document identifiers
+
+- Normalize document IDs to avoid MongoDB key conflicts
+
+- Support addition, deletion, and search operations on document metadata
+
+- Perform top-k semantic chunk retrieval using an in-memory FAISS index
 
 ---
 
 ## Key Functions
 
-### `init_or_load_metadata(session_id: str)`
-- Loads metadata from `backend/data/meta_store/{session_id}/meta.npy`
+`normalize_doc_id(doc_id: str) -> str`
 
-- Initializes a new metadata dictionary if none exists
+- Replaces the last . in a document ID with _ to ensure compatibility with MongoDB field naming
 
-- All metadata is isolated per session
-
----
-
-### `save_metadata(session_id: str, metadata: Dict[str, Dict[str, List]])`
-- Persists the session-specific metadata dictionary to disk
-
-- Used after any addition or deletion of chunks
-
-- Ensures session-level isolation by storing metadata in `backend/data/meta_store/{session_id}/meta.npy`
+- Prevents issues with nested keys during updates
 
 ---
 
 ### `add_to_metadata(session_id: str, doc_id: str, chunks: List[str])`
-- Embeds each chunk using a sentence transformer
-- Stores each chunk's text and corresponding embedding under its associated `doc_id` within the metadata
-- Safely persists the updated metadata to disk
+- Embeds each chunk using `SentenceTransformer`
+- Stores both chunk texts and their embeddings under the normalized `doc_id` within the `documents` field of the session's MongoDB record
+- Uses `upsert=True` to insert or update metadata without overwriting other documents
 
 ---
 
 ### `remove_from_metadata(session_id: str, doc_id: str)`
-- Deletes the given `doc_id`'s chunks and embeddings from metadata
-- Safely persists the updated metadata to disk
+- Deletes the specified doc_id's metadata from the session
+- Uses $unset to surgically remove only the relevant document field
 
 ---
 
@@ -56,8 +50,8 @@ This module manages the core **FAISS-based vector search engine** for DocMind. I
 ---
 
 ### `is_document_indexed(session_id: str, doc_id: str) -> bool`
-- Checks whether the document has already been embedded and stored
-- Helps avoid redundant processing in the document pipeline
+- Checks if the document is already present in the MongoDB metadata for the session
+- Useful to avoid redundant indexing
 
 ---
 
@@ -67,33 +61,41 @@ Each document is stored with metadata:
 
 ```json
 {
-  "report.pdf": {
-    "chunks": ["paragraph 1 text", "paragraph 2 text", ...],
-    "embeddings": [[0.12, 0.53, ...], [0.47, 0.22, ...], ...]
+  "session_id": "abc123",
+  "documents": {
+    "report_pdf": {
+      "chunks": ["text1", "text2", ...],
+      "embeddings": [[0.12, 0.53, ...], [0.47, 0.22, ...], ...]
+    },
+    ...
   }
 }
 ```
+- The key report_pdf is normalized from report.pdf using normalize_doc_id.
 
 
 ## PERSISTENCE
-- Each session has its own metadata file named meta.npy, stored in `backend/data/meta_store/{session_id}`
+- Metadata is stored in MongoDB under the `docmind_metadata.sessions` collection
 
-- Updated every time new documents are added or removed
+- Each document within a session is namespaced under the documents field
+
+- All metadata is session-scoped and can be retrieved, updated, or deleted independently
 
 ## Dependencies
+
+- `pymongo` – MongoDB client for Python
+
 - `faiss` – FAISS indexing and searching
 
 - `sentence-transformers` – Dense embeddings for chunks/queries
 
-- `pathlib` - OS-agnostic file path handling
-
 - `numpy` – Storage of metadata
 
-- `config.py` – Paths to metadata files
+- `config.py` – Provides MONGO_URL for MongoDB connection
 
 ## Related Modules
-- `document_preprocessor.py` – Calls add_chunks_to_index() after chunking
+- `document_preprocessor.py` – Calls `add_to_metadata(session_id, doc_id, chunks)` after chunking
 
-- `query_engine.py` – Uses search_top_k_chunks() to retrieve similar content
+- `query_engine.py` – Uses `search_top_k_chunks(session_id, doc_id, query, k)` to retrieve similar content
 
-- `pipeline_routes.py` – Checks is_document_indexed() to skip reprocessing
+- `pipeline_routes.py` – Checks `is_document_indexed(session_id, doc_id)` to skip reprocessing
