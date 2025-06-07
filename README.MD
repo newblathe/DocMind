@@ -216,7 +216,7 @@ Set the following in your `.env` file.
 
 ```bash
 docker build -t docmind .
-docker run -p 8000:8000 --env-file .env docmind
+docker-compose up -d
 ```
 
 #### 4. Open the app

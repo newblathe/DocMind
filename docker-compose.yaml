@@ -1,0 +1,10 @@
+services:
+  docmind_app:
+    image: docmind
+    container_name: docmind_container
+    volumes:
+      - ./backend/data:/myapp/backend/data
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
