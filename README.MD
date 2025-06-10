@@ -5,6 +5,23 @@
 > Upload → Ask → Analyze → Understand
 
 ---
+
+## Project Goals & Design Philosophy
+
+DocMind was built to demonstrate how Large Language Models (LLMs) can power scalable, document-centric AI systems capable of processing multi-format, unstructured content in real-world settings.
+
+It focuses on:
+
+- **Answering high-level, insight-oriented questions** that are relevant across documents—such as _"What key concerns were raised?"_ or _"What risks are commonly mentioned?"_
+- **Delivering per-document responses**, ensuring source traceability with paragraph-level citations
+- **Organizing outputs into thematic clusters**, helping users navigate and synthesize complex document sets
+- **Handling scanned and text-based documents** via integrated OCR and dynamic preprocessing
+- **Prioritizing production readiness**, with modular FastAPI endpoints, Dockerized deployment, MongoDB-based metadata storage, and built-in rate limiting
+
+> DocMind is best suited for scenarios like compliance review, research synthesis, operational audits, or knowledge extraction—where interpretability and traceability across multiple documents are critical.
+
+---
+
 ## Table of Contents
 
 - [Architecture](#architecture)
