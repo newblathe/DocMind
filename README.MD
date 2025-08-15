@@ -202,10 +202,11 @@ It focuses on:
 ## Live Demo
 
 Access the app at:  
+> **The live demo is currently offline**.  
 [https://docmind-production-6f75.up.railway.app/](https://docmind-production-6f75.up.railway.app/) 
 > **Best viewed on desktop**.  
-> **Metadata stored in a managed MongoDB instance hosted on Railway.  
-> **The live demo is currently offline**.  
+> **Metadata stored in a managed MongoDB instance hosted on Railway**.  
+
 
 Upload your documents, ask a question, and view:
 - Per Document answers
